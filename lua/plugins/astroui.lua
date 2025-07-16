@@ -10,6 +10,5 @@ return {
   opts = {
     -- change colorscheme
     colorscheme = "tokyonight",
-    style = "night",
   },
 }
