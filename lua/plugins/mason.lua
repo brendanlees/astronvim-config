@@ -15,7 +15,7 @@ return {
         "bash-language-server",
         "docker-compose-language-service",
         "systemd-language-server",
-        "tailwind-css-language-server",
+        "tailwindcss-language-server",
 
         -- install formatters
         "stylua",
