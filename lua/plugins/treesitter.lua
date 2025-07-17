@@ -1,15 +1,20 @@
-if true then return {} end -- WARN: REMOVE THIS LINE TO ACTIVATE THIS FILE
-
 -- Customize Treesitter
 
 ---@type LazySpec
 return {
   "nvim-treesitter/nvim-treesitter",
   opts = {
+    highlight = {
+      disable = function()
+        -- check if 'filetype' option includes 'chezmoitmpl'
+        if string.find(vim.bo.filetype, "chezmoitmpl") then return true end
+      end,
+    },
     ensure_installed = {
       "lua",
       "vim",
-      -- add more arguments for adding more treesitter parsers
+      "gotmpl",
+      "toml",
     },
   },
 }
