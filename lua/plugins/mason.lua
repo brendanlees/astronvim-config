@@ -10,18 +10,13 @@ return {
       -- Make sure to use the names found in `:Mason`
       ensure_installed = {
         -- install language servers
-        "lua-language-server",
-        "ansible-language-server",
-        "bash-language-server",
-        "docker-compose-language-service",
         "systemd-language-server",
-        "tailwindcss-language-server",
 
         -- install formatters
         "stylua",
 
         -- install debuggers
-        "debugpy",
+        -- "debugpy",
 
         -- install any other package
         "tree-sitter-cli",
