@@ -21,7 +21,11 @@ return {
   { import = "astrocommunity.pack.toml" },
   { import = "astrocommunity.pack.yaml" },
   -- extensions
+  { import = "astrocommunity.split-and-window.colorful-winsep-nvim" },
   { import = "astrocommunity.docker.lazydocker" },
+  --- tmux
+  { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
+  { import = "astrocommunity.terminal-integration.vim-tmux-yank" },
   -- theme
   { import = "astrocommunity.colorscheme.tokyonight-nvim" },
   { import = "astrocommunity.recipes.cache-colorscheme" },
@@ -29,6 +33,8 @@ return {
   { import = "astrocommunity.recipes.vscode-icons" },
   { import = "astrocommunity.recipes.disable-borders" },
   { import = "astrocommunity.indent.indent-rainbowline" },
+  { import = "astrocommunity.indent.indent-rainbowline" },
+  { import = "astrocommunity.color.nvim-highlight-colors" },
   -- motion
   { import = "astrocommunity.scrolling.mini-animate" },
 }
