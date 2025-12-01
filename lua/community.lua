@@ -23,6 +23,7 @@ return {
   -- extensions
   { import = "astrocommunity.split-and-window.colorful-winsep-nvim" },
   { import = "astrocommunity.docker.lazydocker" },
+  { import = "astrocommunity.ai.opencode-nvim" },
   --- tmux
   { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
   { import = "astrocommunity.terminal-integration.vim-tmux-yank" },
