@@ -33,7 +33,6 @@ return {
   { import = "astrocommunity.recipes.vscode-icons" },
   { import = "astrocommunity.recipes.disable-borders" },
   { import = "astrocommunity.indent.indent-rainbowline" },
-  { import = "astrocommunity.indent.indent-rainbowline" },
   { import = "astrocommunity.color.nvim-highlight-colors" },
   -- motion
   { import = "astrocommunity.scrolling.mini-animate" },
