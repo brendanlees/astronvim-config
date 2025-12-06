@@ -26,7 +26,6 @@ return {
   { import = "astrocommunity.ai.opencode-nvim" },
   --- tmux
   { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
-  { import = "astrocommunity.terminal-integration.vim-tmux-yank" },
   -- theme
   { import = "astrocommunity.colorscheme.tokyonight-nvim" },
   { import = "astrocommunity.recipes.cache-colorscheme" },
