@@ -11,6 +11,7 @@ return {
       ensure_installed = {
         -- install language servers
         "systemd-language-server",
+        "astro-language-server",
 
         -- install formatters
         "stylua",
