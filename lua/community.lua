@@ -15,6 +15,7 @@ return {
   { import = "astrocommunity.pack.laravel" },
   { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.pack.markdown" },
+  { import = "astrocommunity.markdown-and-latex.render-markdown-nvim" },
   { import = "astrocommunity.pack.php" },
   { import = "astrocommunity.pack.prettier" },
   { import = "astrocommunity.pack.python" },
