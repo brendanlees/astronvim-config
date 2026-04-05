@@ -30,7 +30,7 @@ return {
   { import = "astrocommunity.colorscheme.tokyonight-nvim" },
   { import = "astrocommunity.recipes.cache-colorscheme" },
   { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
-  { import = "astrocommunity.recipes.picker-nvchad-theme" },
+  -- { import = "astrocommunity.recipes.picker-nvchad-theme" },
   -- { import = "astrocommunity.recipes.neo-tree-dark" },
   -- { import = "astrocommunity.recipes.telescope-nvchad-theme" },
   -- { import = "astrocommunity.recipes.telescope-nvim-snacks" },
