@@ -2,24 +2,25 @@
 
 ---@type LazySpec
 return {
-  -- use mason-tool-installer for automatically installing Mason packages
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
-    -- overrides `require("mason-tool-installer").setup(...)`
+    dependencies = { "williamboman/mason.nvim" },
+    init = function()
+      local aug = vim.api.nvim_create_augroup("mason-tool-installer", {})
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "MasonToolsStartingInstall",
+        group = aug,
+        callback = function() vim.schedule(function() vim.cmd "Mason" end) end,
+      })
+    end,
     opts = {
-      -- Make sure to use the names found in `:Mason`
       ensure_installed = {
-        -- install language servers
+        -- language servers
         "systemd-lsp",
         "astro-language-server",
-
-        -- install formatters
+        -- formatters
         "stylua",
-
-        -- install debuggers
-        -- "debugpy",
-
-        -- install any other package
+        -- other
         "tree-sitter-cli",
       },
     },
