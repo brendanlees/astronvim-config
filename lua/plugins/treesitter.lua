@@ -26,7 +26,7 @@ return {
       "html",
       "http",
       "javascript",
-      -- "jinja2", not available?
+      "jinja",
       "json",
       "nginx",
       "nix",
@@ -37,14 +37,13 @@ return {
       "scss",
       "sql",
       "ssh_config",
-      -- "ssh_client_config", not available?
       "terraform",
       "tmux",
       "twig",
       "typescript",
       "xml",
       "zig",
-      -- "zsh", not available?
+      "zsh",
     },
   },
 }
