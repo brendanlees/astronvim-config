@@ -13,8 +13,6 @@ return {
         "astro-language-server",
         -- formatters
         "stylua",
-        -- other
-        "tree-sitter-cli",
       },
     },
     config = function(_, opts)
