@@ -17,14 +17,12 @@ return {
     },
     config = function(_, opts)
       require("mason-tool-installer").setup(opts)
-      -- Only install after Mason registries have fully updated
+      -- Hook into AstroNvim's own registry update rather than triggering a second one
       vim.api.nvim_create_autocmd("User", {
-        pattern = "MasonRegistryUpdateSuccess",
+        pattern = "AstroMasonUpdateCompleted",
         once = true,
         callback = function() vim.cmd "MasonToolsInstall" end,
       })
-      -- Trigger the registry update
-      require("mason-registry").update()
     end,
   },
 }
