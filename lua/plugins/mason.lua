@@ -5,15 +5,8 @@ return {
   {
     "WhoIsSethDaniel/mason-tool-installer.nvim",
     dependencies = { "williamboman/mason.nvim" },
-    init = function()
-      local aug = vim.api.nvim_create_augroup("mason-tool-installer", {})
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "MasonToolsStartingInstall",
-        group = aug,
-        callback = function() vim.schedule(function() vim.cmd "Mason" end) end,
-      })
-    end,
     opts = {
+      run_on_start = false,
       ensure_installed = {
         -- language servers
         "systemd-lsp",
@@ -24,5 +17,16 @@ return {
         "tree-sitter-cli",
       },
     },
+    config = function(_, opts)
+      require("mason-tool-installer").setup(opts)
+      -- Only install after Mason registries have fully updated
+      vim.api.nvim_create_autocmd("User", {
+        pattern = "MasonRegistryUpdateSuccess",
+        once = true,
+        callback = function() vim.cmd "MasonToolsInstall" end,
+      })
+      -- Trigger the registry update
+      require("mason-registry").update()
+    end,
   },
 }
