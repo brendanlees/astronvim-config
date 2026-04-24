@@ -15,11 +15,6 @@ end
 
 vim.opt.rtp:prepend(lazypath)
 
--- Ensure Mason bin is on PATH early so AstroCore finds tree-sitter-cli
--- without triggering a racy mason-registry install
-local mason_bin = vim.fn.stdpath "data" .. "/mason/bin"
-if vim.fn.isdirectory(mason_bin) == 1 then vim.env.PATH = mason_bin .. ":" .. vim.env.PATH end
-
 -- validate that lazy is available
 if not pcall(require, "lazy") then
   -- stylua: ignore
