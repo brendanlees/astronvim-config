@@ -39,6 +39,8 @@ return {
   { import = "astrocommunity.recipes.disable-borders" },
   { import = "astrocommunity.indent.indent-rainbowline" },
   { import = "astrocommunity.color.nvim-highlight-colors" },
+  -- utility
+  { import = "astrocommunity.utility.noice-nvim" },
   -- motion
   { import = "astrocommunity.scrolling.mini-animate" },
 }
