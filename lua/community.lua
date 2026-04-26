@@ -26,9 +26,14 @@ return {
   { import = "astrocommunity.docker.lazydocker" },
   --- tmux
   { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
-  -- theme
+  -- theme — colorscheme is selected dynamically in plugins/astroui.lua from
+  -- ~/.config/chezmoi-theme/active.lua, so install every plugin our chezmoi
+  -- theme registry can reference. cache-colorscheme is intentionally omitted
+  -- because it would persist a stale colorscheme across `theme` switches.
   { import = "astrocommunity.colorscheme.tokyonight-nvim" },
-  { import = "astrocommunity.recipes.cache-colorscheme" },
+  { import = "astrocommunity.colorscheme.kanagawa-nvim" },
+  { import = "astrocommunity.colorscheme.monokai-pro-nvim" },
+  { import = "astrocommunity.colorscheme.rose-pine" },
   { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
   -- { import = "astrocommunity.recipes.picker-nvchad-theme" },
   -- { import = "astrocommunity.recipes.neo-tree-dark" },
