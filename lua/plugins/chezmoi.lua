@@ -28,6 +28,9 @@ return {
           if vim.startswith(ev.file, chezmoi_source) or ev.file == "" then return end
           local source = vim.fn.system("chezmoi source-path " .. vim.fn.shellescape(ev.file)):gsub("\n", "")
           if vim.v.shell_error == 0 and source ~= "" and source ~= ev.file then
+            -- chezmoi externals (e.g. nvim config) return a synthetic source path that doesn't
+            -- exist on disk; skip the redirect to avoid blanking the buffer.
+            if vim.fn.filereadable(source) ~= 1 then return end
             vim.schedule(function()
               vim.api.nvim_buf_delete(ev.buf, { force = true })
               vim.cmd("edit " .. vim.fn.fnameescape(source))

@@ -10,7 +10,7 @@ return {
       -- Make sure to use the names found in `:Mason`
       ensure_installed = {
         -- install language servers
-        "systemd-language-server",
+        "systemd-lsp",
         "astro-language-server",
 
         -- install formatters
