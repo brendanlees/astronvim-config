@@ -22,30 +22,6 @@ return {
       virtual_text = true,
       underline = true,
     },
-    -- Autocommands
-    autocmds = {
-      -- restore cursor position on file open
-      restore_cursor = {
-        {
-          event = "BufReadPost",
-          callback = function()
-            local mark = vim.api.nvim_buf_get_mark(0, '"')
-            local line_count = vim.api.nvim_buf_line_count(0)
-            if mark[1] > 0 and mark[1] <= line_count then
-              vim.api.nvim_win_set_cursor(0, mark)
-            end
-          end,
-        },
-      },
-      -- open help and man pages in vertical split
-      vertical_help = {
-        {
-          event = "FileType",
-          pattern = { "help", "man" },
-          callback = function() vim.cmd.wincmd "L" end,
-        },
-      },
-    },
     -- passed to `vim.filetype.add`
     filetypes = {
       -- see `:h vim.filetype.add` for usage
