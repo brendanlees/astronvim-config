@@ -91,7 +91,37 @@ return {
     "rebelot/heirline.nvim",
     opts = function(_, opts)
       opts.winbar = nil
+      if type(opts.statusline) == "table" then
+        table.insert(opts.statusline, 4, {
+          condition = function()
+            local ok, grapple = pcall(require, "grapple")
+            return ok and grapple.exists()
+          end,
+          provider = function() return "  󰛢 " .. (require("grapple").name_or_index() or "") .. " " end,
+          hl = { fg = "nav_icon_bg" },
+        })
+      end
       return opts
     end,
+  },
+
+  {
+    "cbochs/grapple.nvim",
+    dependencies = { { "nvim-tree/nvim-web-devicons", lazy = true } },
+    event = { "BufReadPost", "BufNewFile" },
+    cmd = "Grapple",
+    opts = {
+      scope = "git", -- tags follow the git repo; swap to "git_branch" for per-branch
+    },
+    keys = {
+      { "<Leader>m", "<cmd>Grapple toggle<cr>", desc = "Grapple: toggle tag" },
+      { "<Leader>M", "<cmd>Grapple toggle_tags<cr>", desc = "Grapple: tags window" },
+      { "<Leader>j", "<cmd>Grapple cycle_tags next<cr>", desc = "Grapple: next tag" },
+      { "<Leader>k", "<cmd>Grapple cycle_tags prev<cr>", desc = "Grapple: prev tag" },
+      { "<Leader>1", "<cmd>Grapple select index=1<cr>", desc = "Grapple: tag 1" },
+      { "<Leader>2", "<cmd>Grapple select index=2<cr>", desc = "Grapple: tag 2" },
+      { "<Leader>3", "<cmd>Grapple select index=3<cr>", desc = "Grapple: tag 3" },
+      { "<Leader>4", "<cmd>Grapple select index=4<cr>", desc = "Grapple: tag 4" },
+    },
   },
 }
