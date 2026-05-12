@@ -39,7 +39,6 @@ return {
   -- { import = "astrocommunity.recipes.neo-tree-dark" },
   -- { import = "astrocommunity.recipes.telescope-nvchad-theme" },
   -- { import = "astrocommunity.recipes.telescope-nvim-snacks" },
-  { import = "astrocommunity.recipes.disable-tabline" },
   { import = "astrocommunity.recipes.vscode-icons" },
   { import = "astrocommunity.recipes.disable-borders" },
   { import = "astrocommunity.indent.indent-rainbowline" },
