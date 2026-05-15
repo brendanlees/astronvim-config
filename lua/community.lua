@@ -8,14 +8,14 @@ return {
   -- packs
   { import = "astrocommunity.pack.ansible" },
   { import = "astrocommunity.pack.bash" },
-  { import = "astrocommunity.pack.blade" },
+  -- { import = "astrocommunity.pack.blade" },
   { import = "astrocommunity.pack.chezmoi" },
   { import = "astrocommunity.pack.docker" },
   { import = "astrocommunity.pack.html-css" },
-  { import = "astrocommunity.pack.laravel" },
+  -- { import = "astrocommunity.pack.laravel" },
   { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.pack.markdown" },
-  { import = "astrocommunity.markdown-and-latex.render-markdown-nvim" },
+  -- { import = "astrocommunity.markdown-and-latex.render-markdown-nvim" },
   { import = "astrocommunity.pack.php" },
   { import = "astrocommunity.pack.prettier" },
   { import = "astrocommunity.pack.python" },
@@ -47,4 +47,40 @@ return {
   { import = "astrocommunity.utility.noice-nvim" },
   -- motion
   { import = "astrocommunity.scrolling.mini-animate" },
+
+  -----------------------------------------------------------------------------
+  -- Available packs (uncomment to enable). After uncommenting run :Lazy sync
+  -- to install; after re-commenting run :Lazy clean to remove from disk.
+  -----------------------------------------------------------------------------
+  -- Languages
+  -- { import = "astrocommunity.pack.rust" },
+  -- { import = "astrocommunity.pack.go" },
+  -- { import = "astrocommunity.pack.typescript" },
+  -- { import = "astrocommunity.pack.typescript-deno" },
+  -- { import = "astrocommunity.pack.ruby" },
+  -- { import = "astrocommunity.pack.elixir" },
+  -- { import = "astrocommunity.pack.kotlin" },
+  -- { import = "astrocommunity.pack.java" },
+  -- { import = "astrocommunity.pack.swift" },
+  -- { import = "astrocommunity.pack.zig" },
+  -- { import = "astrocommunity.pack.cpp" },
+  -- { import = "astrocommunity.pack.cs" },
+  -- { import = "astrocommunity.pack.haskell" },
+  -- { import = "astrocommunity.pack.dart" },
+  -- { import = "astrocommunity.pack.julia" },
+
+  -- DevOps / Infra
+  -- { import = "astrocommunity.pack.terraform" },
+  -- { import = "astrocommunity.pack.nix" },
+  -- { import = "astrocommunity.pack.cmake" },
+  -- { import = "astrocommunity.pack.helm" },
+  -- { import = "astrocommunity.pack.kubernetes" },
+
+  -- Editor extras
+  -- { import = "astrocommunity.completion.copilot-lua" },
+  -- { import = "astrocommunity.editing-support.todo-comments-nvim" },
+  -- { import = "astrocommunity.git.diffview-nvim" },
+  -- { import = "astrocommunity.fuzzy-finder.telescope-nvim" },
+  -- { import = "astrocommunity.test.neotest" },
+  -- { import = "astrocommunity.debugging.nvim-dap" },
 }
