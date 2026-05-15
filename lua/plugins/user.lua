@@ -1,7 +1,38 @@
 ---@type LazySpec
 return {
 
-  "andweeb/presence.nvim",
+  -- Keep mini.animate for smooth scrolling only; disable cursor/resize/window animations
+  {
+    "echasnovski/mini.animate",
+    opts = {
+      cursor = { enable = false },
+      resize = { enable = false },
+      open = { enable = false },
+      close = { enable = false },
+    },
+  },
+
+  -- Slim noice down to just the floating cmdline; disable message/LSP/notify reskins
+  {
+    "folke/noice.nvim",
+    opts = {
+      messages = { enabled = false },
+      notify = { enabled = false },
+      popupmenu = { enabled = false },
+      lsp = {
+        progress = { enabled = false },
+        hover = { enabled = false },
+        signature = { enabled = false },
+        message = { enabled = false },
+      },
+      presets = {
+        command_palette = false,
+        long_message_to_split = false,
+        lsp_doc_border = false,
+        inc_rename = false,
+      },
+    },
+  },
 
   -- == neo-tree ==
   {
@@ -103,6 +134,15 @@ return {
       end
       return opts
     end,
+  },
+
+  {
+    "shortcuts/no-neck-pain.nvim",
+    version = "*",
+    cmd = { "NoNeckPain", "NoNeckPainToggleLeftSide", "NoNeckPainToggleRightSide" },
+    keys = {
+      { "<Leader>z", "<cmd>NoNeckPain<cr>", desc = "Toggle No Neck Pain" },
+    },
   },
 
   {
