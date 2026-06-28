@@ -1,4 +1,6 @@
 -- AstroCommunity: import any community modules here
+--
+-- 
 -- We import this file in `lazy_setup.lua` before the `plugins/` folder.
 -- This guarantees that the specs are processed before any user plugins.
 
@@ -23,7 +25,7 @@ return {
   { import = "astrocommunity.pack.yaml" },
   -- extensions
   { import = "astrocommunity.split-and-window.colorful-winsep-nvim" },
-  { import = "astrocommunity.docker.lazydocker" },
+  -- { import = "astrocommunity.docker.lazydocker" },
   --- tmux
   { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
   -- theme — colorscheme is selected dynamically in plugins/astroui.lua from
