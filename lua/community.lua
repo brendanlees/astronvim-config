@@ -36,6 +36,7 @@ return {
   { import = "astrocommunity.colorscheme.kanagawa-nvim" },
   { import = "astrocommunity.colorscheme.monokai-pro-nvim" },
   { import = "astrocommunity.colorscheme.rose-pine" },
+  { "vossenwout/guts.nvim", lazy = true },
   { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
   -- { import = "astrocommunity.recipes.picker-nvchad-theme" },
   -- { import = "astrocommunity.recipes.neo-tree-dark" },
