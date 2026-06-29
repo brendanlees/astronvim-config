@@ -26,7 +26,7 @@ return {
         message = { enabled = false },
       },
       presets = {
-        command_palette = false,
+        command_palette = true,
         long_message_to_split = false,
         lsp_doc_border = false,
         inc_rename = false,
