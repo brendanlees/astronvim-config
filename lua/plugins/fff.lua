@@ -13,7 +13,12 @@ return {
       layout = {
         height = 0.8,
         width = 0.8,
+        prompt_position = "top",
         preview_position = "right",
+      },
+      keymaps = {
+        move_up = { "<Up>", "<C-p>", "<C-k>" },
+        move_down = { "<Down>", "<C-n>", "<C-j>" },
       },
     },
     keys = {
