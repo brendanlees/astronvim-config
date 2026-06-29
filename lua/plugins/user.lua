@@ -28,7 +28,7 @@ return {
     opts = {
       messages = { enabled = false },
       notify = { enabled = false },
-      popupmenu = { enabled = false },
+      popupmenu = { enabled = true },
       lsp = {
         progress = { enabled = false },
         hover = { enabled = false },
@@ -36,7 +36,7 @@ return {
         message = { enabled = false },
       },
       presets = {
-        command_palette = false,
+        command_palette = true,
         long_message_to_split = false,
         lsp_doc_border = false,
         inc_rename = false,
