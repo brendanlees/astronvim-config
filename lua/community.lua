@@ -1,6 +1,6 @@
 -- AstroCommunity: import any community modules here
 --
--- 
+--
 -- We import this file in `lazy_setup.lua` before the `plugins/` folder.
 -- This guarantees that the specs are processed before any user plugins.
 
@@ -37,7 +37,7 @@ return {
   { import = "astrocommunity.colorscheme.monokai-pro-nvim" },
   { import = "astrocommunity.colorscheme.rose-pine" },
   { "vossenwout/guts.nvim", lazy = true },
-  { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
+  -- { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
   -- { import = "astrocommunity.recipes.picker-nvchad-theme" },
   -- { import = "astrocommunity.recipes.neo-tree-dark" },
   -- { import = "astrocommunity.recipes.telescope-nvchad-theme" },
