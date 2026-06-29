@@ -12,6 +12,16 @@ return {
     },
   },
 
+  -- Enable blink.cmp cmdline auto-show so completions appear without pressing Tab
+  {
+    "saghen/blink.cmp",
+    opts = {
+      cmdline = {
+        completion = { menu = { auto_show = true } },
+      },
+    },
+  },
+
   -- Slim noice down to just the floating cmdline; disable message/LSP/notify reskins
   {
     "folke/noice.nvim",
