@@ -17,7 +17,7 @@ return {
     "saghen/blink.cmp",
     opts = {
       cmdline = {
-        completion = { menu = { auto_show = true } },
+        completion = { menu = { auto_show = false } },
       },
     },
   },
@@ -28,7 +28,7 @@ return {
     opts = {
       messages = { enabled = false },
       notify = { enabled = false },
-      popupmenu = { enabled = true },
+      popupmenu = { enabled = false },
       lsp = {
         progress = { enabled = false },
         hover = { enabled = false },
