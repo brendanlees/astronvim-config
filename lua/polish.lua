@@ -23,7 +23,12 @@ if has_osc52 and not has_native_clipboard then
       ['+'] = osc52.copy('+'),
       ['*'] = osc52.copy('*'),
     },
-    paste = {
+    paste = vim.env.HERDR_PANE_ID and {
+      -- Herdr forwards OSC 52 writes but does not return clipboard-read
+      -- responses, so avoid blocking until Neovim's OSC 52 timeout.
+      ['+'] = function() return { {}, 'v' } end,
+      ['*'] = function() return { {}, 'v' } end,
+    } or {
       ['+'] = osc52.paste('+'),
       ['*'] = osc52.paste('*'),
     },
