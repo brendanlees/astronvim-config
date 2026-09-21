@@ -13,6 +13,7 @@ return {
       large_buf = { size = 1024 * 256, lines = 10000 }, -- set global limits for large files for disabling features like treesitter
       autopairs = true, -- enable autopairs at start
       cmp = true, -- enable completion at start
+      autoread = true, -- automatically reload files changed outside Neovim
       diagnostics = { virtual_text = true, virtual_lines = false }, -- diagnostic settings on startup
       highlighturl = true, -- highlight URLs at start
       notifications = false, -- enable notifications at start
@@ -38,6 +39,7 @@ return {
     -- vim options can be configured here
     options = {
       opt = { -- vim.opt.<key>
+        autoread = true, -- reload files changed outside Neovim when checked
         relativenumber = true, -- sets vim.opt.relativenumber
         number = true, -- sets vim.opt.number
         spell = false, -- sets vim.opt.spell
@@ -45,6 +47,7 @@ return {
         wrap = true, -- visually wrap long lines to the current window width
         linebreak = true, -- wrap at word boundaries
         breakindent = true, -- preserve indentation for wrapped lines
+        showtabline = 0, -- disable the bufferline
       },
       g = { -- vim.g.<key>
         -- configure global vim variables (vim.g)
