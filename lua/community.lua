@@ -25,6 +25,8 @@ return {
   { import = "astrocommunity.pack.yaml" },
   -- extensions
   { import = "astrocommunity.split-and-window.colorful-winsep-nvim" },
+  -- file explorer trial: keep Neo-tree available while evaluating Oil
+  { import = "astrocommunity.file-explorer.oil-nvim" },
   -- { import = "astrocommunity.docker.lazydocker" },
   --- tmux
   { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
