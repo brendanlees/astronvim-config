@@ -27,6 +27,7 @@ With Neovim, the configured plugins, and Markdown/Lua Treesitter parsers install
 ```sh
 bash tests/obsidian-startup.sh
 bash tests/markdown.sh
+bash tests/statusline.sh
 git diff --check
 ```
 

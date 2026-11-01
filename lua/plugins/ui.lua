@@ -71,7 +71,6 @@ return {
             return ok and grapple.exists()
           end,
           provider = function() return "  󰛢 " .. (require("grapple").name_or_index() or "") .. " " end,
-          hl = { fg = "nav_icon_bg" },
         })
       end
       return opts
