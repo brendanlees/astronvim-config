@@ -1,16 +1,19 @@
+local vault = vim.env.HOME .. "/Notes/Obsidian/PKM"
+local markdown = vault .. "/*.md"
+
 ---@type LazySpec
 return {
   "obsidian-nvim/obsidian.nvim",
   -- Keep the custom note helpers on the plugin API they were tested with.
   commit = "15af492b64f4677959fe95008f1d5b782fe1f86a",
   cmd = "Obsidian",
-  event = { "BufReadPre */Obsidian/Vaults/*.md", "BufNewFile */Obsidian/Vaults/*.md" },
+  event = { "BufReadPre " .. markdown, "BufNewFile " .. markdown },
 
   init = function()
     -- Register before lazy loading so Obsidian's first BufEnter check sees this.
     vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile", "BufEnter" }, {
       group = vim.api.nvim_create_augroup("obsidian_conceal", { clear = true }),
-      pattern = "*/Obsidian/Vaults/*.md",
+      pattern = markdown,
       callback = function() vim.opt_local.conceallevel = 2 end,
     })
   end,
@@ -18,7 +21,7 @@ return {
   opts = function(_, opts)
     opts.workspaces = {
       {
-        path = vim.env.HOME .. "/Notes/Obsidian/Vaults/PKM Vault/PKM",
+        path = vault,
       },
     }
     opts.legacy_commands = false
