@@ -77,6 +77,16 @@ function M.line()
   apply { { row, 0, #vim.api.nvim_get_current_line() } }
 end
 
+local function insert_empty(row, col, line)
+  if vim.bo.filetype ~= "markdown" or vim.bo.buftype ~= "" or not vim.bo.modifiable or vim.bo.readonly then return end
+  col = math.max(col, line_start(line))
+  local context = require("obsidian.document").get(0):context_at(require("obsidian.pos").new(row - 1, col))
+  if not vim.tbl_isempty(context) then return end
+  vim.api.nvim_buf_set_text(0, row - 1, col, row - 1, col, { "====" })
+  vim.api.nvim_win_set_cursor(0, { row, col + 2 })
+  vim.cmd.startinsert()
+end
+
 function M.word()
   local row, col = unpack(vim.api.nvim_win_get_cursor(0))
   local line = vim.api.nvim_get_current_line()
@@ -89,13 +99,14 @@ function M.word()
   local offset = 0
   while offset < #line do
     local word = vim.fn.matchstrpos(line, [[\k\+]], offset)
-    if word[2] < 0 then return end
+    if word[2] < 0 then break end
     if word[2] <= col and col < word[3] then
       apply { { row, word[2], word[3] } }
       return
     end
     offset = word[3]
   end
+  insert_empty(row, col, line)
 end
 
 function M.selection()
@@ -132,7 +143,7 @@ function M.setup()
 end
 
 function M.attach()
-  vim.keymap.set("n", "<LocalLeader>h", M.word, { buffer = true, desc = "Toggle word or passage highlight" })
+  vim.keymap.set("n", "<LocalLeader>h", M.word, { buffer = true, desc = "Toggle highlight or start a new one" })
   vim.keymap.set("n", "<LocalLeader>hh", M.line, { buffer = true, desc = "Toggle line highlight" })
   vim.keymap.set("x", "<LocalLeader>h", M.selection, { buffer = true, desc = "Toggle selected text highlight" })
 end
