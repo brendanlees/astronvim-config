@@ -21,6 +21,7 @@ cat >"$tmpdir/init.lua" <<'LUA'
 vim.opt.rtp:prepend(vim.env.OBSIDIAN_TEST_ROOT)
 vim.opt.rtp:prepend(vim.env.OBSIDIAN_TEST_LAZY)
 vim.opt.swapfile = false
+vim.g.maplocalleader = ","
 local errors = {}
 vim.notify = function(message, level)
   if level == vim.log.levels.ERROR then errors[#errors + 1] = tostring(message) end
@@ -59,6 +60,11 @@ vim.api.nvim_create_autocmd("VimEnter", {
         assert(vim.fn.maparg("<LocalLeader>d", "n") ~= "", "periodic mappings missing")
         assert(vim.fn.maparg("<LocalLeader>t", "n") ~= "", "template mappings missing")
         assert(vim.fn.maparg("<LocalLeader>.f", "n") ~= "", "search mappings missing")
+        assert(vim.fn.maparg(",b", "n") ~= "", "bookmark toggle mapping missing")
+        assert(vim.fn.maparg(",.b", "n") == "<Cmd>Obsidian bookmarks<CR>", "bookmark search mapping missing")
+        if vim.env.OBSIDIAN_TEST_BOOKMARKS == "1" then
+          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-bookmarks.lua")
+        end
         if vim.env.OBSIDIAN_TEST_AUTOSAVE == "1" then
           local writes = 0
           vim.api.nvim_create_autocmd("User", {
@@ -104,3 +110,4 @@ nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 cmp "$tmpdir/expected.md" "$note"
 
 OBSIDIAN_TEST_AUTOSAVE=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
+OBSIDIAN_TEST_BOOKMARKS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"

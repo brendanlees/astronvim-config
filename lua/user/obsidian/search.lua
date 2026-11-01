@@ -262,6 +262,7 @@ end
 
 function M.attach()
   for key, mapping in pairs {
+    b = { "<Cmd>Obsidian bookmarks<CR>", "Search bookmarks" },
     u = { M.unreviewed, "Search unreviewed notes" },
     t = { M.types, "Search by note type" },
     f = { M.names, "Search note names and aliases" },

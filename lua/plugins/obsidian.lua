@@ -32,6 +32,7 @@ return {
       require("user.obsidian.periodic").attach()
       require("user.obsidian.templates").attach()
       require("user.obsidian.search").attach()
+      require("user.obsidian.bookmarks").attach()
     end
     opts.callbacks.create_note = function(note)
       note.template = note.template or require("user.obsidian.periodic").template_for_note(note)
