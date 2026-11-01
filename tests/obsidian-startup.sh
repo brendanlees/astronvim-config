@@ -27,6 +27,9 @@ vim.notify = function(message, level)
 end
 local spec = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/obsidian.lua")
 spec.dir = vim.env.OBSIDIAN_TEST_PLUGIN
+-- Interactive startup defers :Lazy until VeryLazy; headless startup does not.
+-- Exercise that registration path without requiring a display server.
+require("lazy.core.config").headless = function() return false end
 require("lazy").setup({ spec }, {
   root = vim.env.OBSIDIAN_TEST_TMP .. "/plugins",
   lockfile = vim.env.OBSIDIAN_TEST_TMP .. "/lazy-lock.json",
@@ -35,11 +38,14 @@ require("lazy").setup({ spec }, {
   change_detection = { enabled = false },
   performance = { rtp = { reset = false } },
 })
+assert(vim.fn.exists(":Lazy") == 0, ":Lazy must not be available before startup")
 vim.api.nvim_create_autocmd("VimEnter", {
   once = true,
   callback = function()
     vim.schedule(function()
       local ok, err = pcall(function()
+        local messages = vim.api.nvim_exec2("messages", { output = true }).output
+        assert(not messages:find("E492:", 1, true), messages)
         assert(Obsidian and Obsidian.opts, "Obsidian did not finish setup")
         local root = assert(vim.uv.fs_realpath(vim.env.HOME .. "/Notes/Obsidian/Vaults/PKM Vault/PKM"))
         local relative = require("obsidian.date").format(os.time(), Obsidian.opts.daily_notes.date_format, 1)
@@ -67,9 +73,8 @@ vim.api.nvim_create_autocmd("VimEnter", {
 })
 LUA
 
-# Match ov's actual startup commands, then check command-triggered loading too.
-nvim --headless -i NONE -u "$tmpdir/init.lua" "$vault" \
-  -c 'Lazy load obsidian.nvim' -c 'Obsidian today'
+# Match ov: the Obsidian command itself must load the plugin before :Lazy exists.
+nvim --headless -i NONE -u "$tmpdir/init.lua" "$vault" -c 'Obsidian today'
 note=$(find "$vault/__notes/daily" -name '*.md' -type f)
 printf '\nExisting note must be preserved\n' >>"$note"
 cp "$note" "$tmpdir/expected.md"
