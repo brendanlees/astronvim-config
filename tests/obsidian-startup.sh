@@ -84,6 +84,12 @@ vim.api.nvim_create_autocmd("VimEnter", {
           hl = vim.api.nvim_get_hl(0, { name = "ObsidianHighlightText", link = false })
           assert(hl.fg == 0xffffff and hl.bg == 0x806600, "theme change replaced highlight colours")
         end
+        for _, key in ipairs { "d", "w", "e" } do
+          assert(vim.fn.maparg(",." .. key, "n") ~= "", "periodic search mapping missing: " .. key)
+        end
+        if vim.env.OBSIDIAN_TEST_PERIODIC_SEARCH == "1" then
+          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-periodic-search.lua")
+        end
         if vim.env.OBSIDIAN_TEST_BOOKMARKS == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-bookmarks.lua")
         end
@@ -134,3 +140,4 @@ cmp "$tmpdir/expected.md" "$note"
 OBSIDIAN_TEST_AUTOSAVE=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_BOOKMARKS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_HIGHLIGHTS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
+OBSIDIAN_TEST_PERIODIC_SEARCH=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"

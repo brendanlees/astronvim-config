@@ -263,6 +263,9 @@ end
 function M.attach()
   for key, mapping in pairs {
     b = { "<Cmd>Obsidian bookmarks<CR>", "Search bookmarks" },
+    d = { function() require("user.obsidian.periodic").search "daily" end, "Search daily notes" },
+    w = { function() require("user.obsidian.periodic").search "weekly" end, "Search weekly notes" },
+    e = { function() require("user.obsidian.periodic").search "monthly" end, "Search monthly notes" },
     u = { M.unreviewed, "Search unreviewed notes" },
     t = { M.types, "Search by note type" },
     f = { M.names, "Search note names and aliases" },

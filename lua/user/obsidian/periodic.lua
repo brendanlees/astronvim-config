@@ -82,6 +82,26 @@ function M.navigate(direction)
   end
 end
 
+function M.search(kind)
+  local notes = list_notes(notes_folder(), kind)
+  if #notes == 0 then
+    vim.notify("No " .. kind .. " notes found", vim.log.levels.INFO)
+    return
+  end
+  table.sort(notes, function(a, b)
+    if a.timestamp == b.timestamp then return a.path < b.path end
+    return a.timestamp > b.timestamp
+  end)
+  local picker = require "obsidian.picker"
+  picker.select(notes, {
+    prompt = "Search " .. kind .. " notes",
+    format_item = function(note) return vim.fs.basename(note.path):sub(1, -4) end,
+    preview_item = function(note) return picker.preview_path(note.path) end,
+  }, function(choices)
+    if choices and choices[1] then require("obsidian.api").open_note(choices[1].path) end
+  end)
+end
+
 function M.open_current(kind)
   local folder = notes_folder()
   local timestamp = current_period(kind)
