@@ -103,4 +103,69 @@ vim.cmd.colorscheme "habamax"
 local changed = vim.api.nvim_get_hl(0, { name = "@markup.raw.block.markdown", link = false })
 local normal = vim.api.nvim_get_hl(0, { name = "Normal", link = false })
 assert(changed.bg and changed.bg ~= normal.bg and changed.bg ~= bg.bg, vim.inspect(changed))
-print "PASS: full-width code backgrounds cover blank lines and fences, follow edits, and survive theme changes; syntax colors and inline concealment preserved"
+vim.opt.rtp:append(vim.env.NVIM_TEST_PLUGINS .. "/indent-blankline.nvim")
+vim.opt.rtp:append(vim.env.NVIM_TEST_PLUGINS .. "/indent-rainbowline.nvim")
+local ibl = require "ibl"
+ibl.setup(require("indent-rainbowline").make_opts { scope = { enabled = false } })
+local specs = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/markdown.lua")
+for _, spec in ipairs(specs) do
+  if spec[1] == "lukas-reineke/indent-blankline.nvim" then spec.opts() end
+end
+vim.api.nvim_buf_set_lines(0, 0, -1, false, {
+  "    prose",
+  "```lua",
+  "  if true then",
+  "    print('nested')",
+  "",
+  "  end",
+  "```",
+  "    prose again",
+})
+vim.bo.shiftwidth = 2
+appearance.attach(0)
+local hooks = require "ibl.hooks"
+local function indent_chunks(row)
+  local hl = require "ibl.highlights"
+  local chunks = {
+    { "│", { hl.whitespace[1].char, hl.indent[1].char } },
+    { "│", { hl.whitespace[2].char, hl.scope[2].char, hl.scope[2].underline } },
+  }
+  for _, hook in ipairs(hooks.get(0, hooks.type.VIRTUAL_TEXT)) do
+    chunks = hook(1, vim.api.nvim_get_current_buf(), row, chunks)
+  end
+  return chunks
+end
+for _, row in ipairs { 2, 3, 4, 5 } do
+  local chunks = indent_chunks(row)
+  assert(chunks[1][2][2] == "MarkdownRainbowindent1", "Code indent lost its rainbow colour")
+  assert(chunks[2][2][2] == "MarkdownRainbowscope2", "Scope indent lost its rainbow colour")
+  assert(chunks[2][2][3] == require("ibl.highlights").scope[2].underline, "Scope underline changed")
+end
+for _, row in ipairs { 0, 7 } do
+  assert(indent_chunks(row)[1][2][2] == require("ibl.highlights").indent[1].char, "Prose indents changed")
+end
+local function rainbow_bg() return vim.api.nvim_get_hl(0, { name = "MarkdownRainbowindent1", link = false }).bg end
+ibl.refresh(0)
+local rendered = {}
+for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(0, vim.api.nvim_get_namespaces().indent_blankline, 0, -1, {
+  details = true,
+})) do
+  rendered[mark[2]] = mark[4].virt_text
+end
+assert(rendered[3] and vim.inspect(rendered[3]):find("MarkdownRainbowindent2"), "Nested rainbow guides were not rendered")
+assert(rendered[0] and not vim.inspect(rendered[0]):find("MarkdownRainbow"), "Rendered prose guides changed")
+local before = rainbow_bg()
+assert(before ~= changed.bg, "Rainbow colour must contrast with the code background")
+vim.cmd.colorscheme "habamax"
+assert(rainbow_bg() == before, "Repeating the theme changed rainbow colours")
+vim.api.nvim_set_hl(0, "Normal", { bg = "#ffffff", fg = "#000000" })
+vim.o.background = "light"
+vim.api.nvim_exec_autocmds("ColorScheme", {})
+assert(rainbow_bg() ~= before, "Rainbow colours did not follow the code background")
+vim.bo.filetype = "lua"
+assert(indent_chunks(3)[1][2][2] == require("ibl.highlights").indent[1].char, "Source-file indents changed")
+vim.bo.filetype = "markdown"
+vim.api.nvim_buf_set_lines(0, 0, -1, false, { "    no fence remains" })
+vim.api.nvim_exec_autocmds("TextChanged", { buffer = 0 })
+assert(indent_chunks(0)[1][2][2] == require("ibl.highlights").indent[1].char, "Deleted fences left rainbow overrides")
+print "PASS: fenced-block backgrounds and rainbow indents follow edits and theme changes; prose and source-file indents stay unchanged"
