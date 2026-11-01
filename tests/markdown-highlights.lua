@@ -55,6 +55,55 @@ buffer({ "café naïve" }, 1, 7)
 feed ",h"
 expect { "café ==naïve==" }
 
+for _, case in ipairs {
+  { line = "", col = 0, expected = "==new text==" },
+  { line = "   ", col = 1, expected = "   ==new text==" },
+  { line = "before  after", col = 7, expected = "before ==new text== after" },
+  { line = "café  suite", col = 6, expected = "café ==new text== suite" },
+  { line = "()", col = 1, expected = "(==new text==)" },
+  { line = "- ", col = 0, expected = "- ==new text==" },
+  { line = "1. ", col = 2, expected = "1. ==new text==" },
+  { line = "- [ ] ", col = 5, expected = "- [ ] ==new text==" },
+  { line = "## ", col = 2, expected = "## ==new text==" },
+  { line = "> ", col = 1, expected = "> ==new text==" },
+} do
+  buffer({ case.line }, 1, case.col)
+  feed ",hnew text<Esc>"
+  expect { case.expected }
+end
+buffer { "" }
+feed ",h<Esc>"
+expect { "====" }
+assert(vim.api.nvim_win_get_cursor(0)[2] == 1, "Cursor was not between the delimiter pairs before Escape")
+
+for _, case in ipairs {
+  { lines = { "```", "", "```" }, row = 2, col = 0 },
+  { lines = { "```", "" }, row = 2, col = 0 },
+  { lines = { "---", "", "---" }, row = 2, col = 0 },
+  { lines = { "text `a b`" }, row = 1, col = 7 },
+  { lines = { "<!-- -->" }, row = 1, col = 4 },
+  { lines = { "%% %%" }, row = 1, col = 2 },
+} do
+  buffer(case.lines, case.row, case.col)
+  feed ",h<Esc>"
+  expect(case.lines)
+end
+buffer({ "" }, 1, 0, "lua")
+feed ",h<Esc>"
+expect { "" }
+buffer { "" }
+vim.bo.readonly = true
+feed ",h<Esc>"
+expect { "" }
+vim.bo.readonly = false
+vim.bo.modifiable = false
+feed ",h<Esc>"
+expect { "" }
+vim.bo.modifiable = true
+vim.bo.buftype = "nofile"
+feed ",h<Esc>"
+expect { "" }
+
 buffer { "one two three" }
 feed "0wvaw,h"
 expect { "one ==two== three" }
@@ -125,4 +174,4 @@ end
 style()
 vim.cmd.colorscheme "habamax"
 style()
-print "PASS: line/word/selection highlights, Unicode, Markdown prefixes, undo, syntax exclusions, and theme-stable colours"
+print "PASS: line/word/selection highlights, empty-highlight typing, Unicode, Markdown prefixes, undo, syntax exclusions, and theme-stable colours"
