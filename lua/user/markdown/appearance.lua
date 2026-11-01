@@ -1,5 +1,26 @@
 local M = {}
 local adjusted = setmetatable({}, { __mode = "k" })
+local background_ns = vim.api.nvim_create_namespace "markdown_code_background"
+local block_query
+
+local function shade_blocks(buf)
+  vim.api.nvim_buf_clear_namespace(buf, background_ns, 0, -1)
+  if vim.bo[buf].filetype ~= "markdown" or vim.bo[buf].buftype ~= "" then return end
+  local tree = vim.treesitter.get_parser(buf, "markdown"):parse()[1]
+  block_query = block_query or vim.treesitter.query.parse("markdown", "(fenced_code_block) @block")
+  for _, node in block_query:iter_captures(tree:root(), buf, 0, -1) do
+    local first, _, last, col = node:range()
+    if col > 0 then last = last + 1 end
+    -- Cover complete rows, including empty lines and the space after the text.
+    vim.api.nvim_buf_set_extmark(buf, background_ns, first, 0, {
+      end_row = last,
+      end_col = 0,
+      hl_group = "@markup.raw.block.markdown",
+      hl_eol = true,
+      priority = 90,
+    })
+  end
+end
 
 local function reveal_fences()
   local query = vim.treesitter.query.get("markdown", "highlights")
@@ -52,11 +73,20 @@ function M.highlights()
 end
 
 function M.attach(buf)
+  if buf == 0 then buf = vim.api.nvim_get_current_buf() end
   if vim.bo[buf].filetype ~= "markdown" or vim.bo[buf].buftype ~= "" then return end
   reveal_fences()
   -- Restart the highlighter to clear any already-rendered concealed-line marks.
   vim.treesitter.stop(buf)
   vim.treesitter.start(buf, "markdown")
+  local group = vim.api.nvim_create_augroup("markdown_code_background", { clear = false })
+  vim.api.nvim_clear_autocmds { group = group, buffer = buf }
+  vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP", "BufReadPost", "FileType" }, {
+    group = group,
+    buffer = buf,
+    callback = function() shade_blocks(buf) end,
+  })
+  shade_blocks(buf)
 end
 
 function M.setup()
