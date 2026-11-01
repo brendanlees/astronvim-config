@@ -42,6 +42,7 @@ return {
     opts = {
       enabled_file_types = { "markdown" },
       set_mappings = false,
+      delete_last_bullet_if_empty = 2, -- Enter on an empty nested item returns to its parent level.
       nested_checkboxes = false,
       checkbox_markers = " ~!>x",
       custom_mappings = {

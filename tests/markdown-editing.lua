@@ -64,6 +64,37 @@ feed "gN"
 assert(vim.deep_equal(lines(), { "1. a", "2. b", "3. c" }), vim.inspect(lines()))
 print "PASS: bullets, numbering, unchecked task continuation, empty-list exit, normal o, and gN"
 
+for _, fixture in ipairs {
+  { parent = "- parent", child = "    - child", empty = "        - ", middle = "    - ", outer = "- " },
+  { parent = "1. parent", child = "    1. child", empty = "        2. ", middle = "    2. ", outer = "2. " },
+  {
+    parent = "- [ ] parent",
+    child = "    - [ ] child",
+    empty = "        - [ ] ",
+    middle = "    - [ ] ",
+    outer = "- [ ] ",
+  },
+} do
+  buffer({ fixture.parent, fixture.child, fixture.empty }, 3)
+  feed "A<CR><Esc>"
+  assert(vim.deep_equal(lines(), { fixture.parent, fixture.child, fixture.middle }), vim.inspect(lines()))
+  feed "A<CR><Esc>"
+  assert(lines()[3] == fixture.outer and #lines() == 3, vim.inspect(lines()))
+  feed "A<CR><Esc>"
+  assert(lines()[3] == "" and #lines() == 3, vim.inspect(lines()))
+
+  buffer({ fixture.parent, fixture.child, fixture.empty }, 3)
+  feed "A<CR>next sibling<Esc>"
+  assert(lines()[3] == fixture.middle .. "next sibling", "Cursor did not stay after the outdented marker")
+end
+buffer({ "- parent", "  - " }, 2)
+feed "A<CR>next sibling<Esc>"
+assert(vim.deep_equal(lines(), { "- parent", "- next sibling" }), vim.inspect(lines()))
+buffer({ "- parent", "    - child" }, 2)
+feed "A<CR>next child<Esc>"
+assert(vim.deep_equal(lines(), { "- parent", "    - child", "    - next child" }), vim.inspect(lines()))
+print "PASS: Enter outdents empty nested bullets, numbered items, and tasks one level; top-level Enter exits"
+
 buffer { "- first" }
 local original_accept = cmp.accept
 local accepted = 0
@@ -74,6 +105,11 @@ end
 feed "A<CR><Esc>"
 cmp.accept = original_accept
 assert(accepted == 1 and #lines() == 1)
+buffer({ "- parent", "    - " }, 2)
+cmp.accept = function() return true end
+feed "A<CR><Esc>"
+cmp.accept = original_accept
+assert(lines()[2] == "    - " and #lines() == 2, "Empty-item outdent overrode completion acceptance")
 vim.keymap.set("n", "<CR>", "<Cmd>let g:smart_seen=1<CR>", { buffer = true })
 feed "<CR>"
 assert(vim.g.smart_seen == 1)
@@ -94,6 +130,12 @@ buffer({ "local value = 1" }, 1, "lua")
 assert(vim.fn.maparg("o", "n") == "")
 feed "A<CR>local next_value = 2<Esc>"
 assert(#lines() == 2)
+buffer({ "```text", "- parent", "    - ", "```" }, 3)
+feed "A<CR><Esc>"
+assert(lines()[3] == "    - " and #lines() == 5, "Code-block list was outdented")
+buffer({ "---", "items:", "    - ", "---" }, 3)
+feed "A<CR><Esc>"
+assert(lines()[3] == "    - " and #lines() == 5, "Frontmatter list was outdented")
 print "PASS: list automation excluded from fenced code, YAML frontmatter, and non-Markdown buffers"
 
 local editing = require "user.markdown.editing"
