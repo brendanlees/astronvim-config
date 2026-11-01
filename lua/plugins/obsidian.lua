@@ -10,6 +10,7 @@ return {
   event = { "BufReadPre " .. markdown, "BufNewFile " .. markdown },
 
   init = function()
+    require("user.obsidian.autosave").setup(vault)
     -- Register before lazy loading so Obsidian's first BufEnter check sees this.
     vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile", "BufEnter" }, {
       group = vim.api.nvim_create_augroup("obsidian_conceal", { clear = true }),

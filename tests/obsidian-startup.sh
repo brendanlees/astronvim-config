@@ -59,6 +59,24 @@ vim.api.nvim_create_autocmd("VimEnter", {
         assert(vim.fn.maparg("<LocalLeader>d", "n") ~= "", "periodic mappings missing")
         assert(vim.fn.maparg("<LocalLeader>t", "n") ~= "", "template mappings missing")
         assert(vim.fn.maparg("<LocalLeader>.f", "n") ~= "", "search mappings missing")
+        if vim.env.OBSIDIAN_TEST_AUTOSAVE == "1" then
+          local writes = 0
+          vim.api.nvim_create_autocmd("User", {
+            pattern = "ObsidianNoteWritePost",
+            callback = function() writes = writes + 1 end,
+          })
+          local marker = "Autosaved through Obsidian write hooks"
+          vim.api.nvim_buf_set_lines(0, -1, -1, false, { marker })
+          vim.api.nvim_exec_autocmds("TextChangedI", { buffer = 0 })
+          assert(vim.wait(3000, function()
+            return vim.tbl_contains(vim.fn.readfile(expected), marker)
+          end), "idle autosave did not reach disk")
+          assert(writes == 1 and not vim.bo.modified, "Obsidian write hooks did not complete")
+          vim.api.nvim_buf_set_lines(0, -1, -1, false, { "Saved on leaving the note" })
+          vim.api.nvim_exec_autocmds("FocusLost", { buffer = 0 })
+          assert(vim.tbl_contains(vim.fn.readfile(expected), "Saved on leaving the note"))
+          assert(writes == 2, "FocusLost skipped the Obsidian write hook")
+        end
         assert(#errors == 0, table.concat(errors, "\n"))
       end)
       if not ok then
@@ -84,3 +102,5 @@ cmp "$tmpdir/expected.md" "$note"
 # Direct file opens must load Obsidian and its note mappings without a command.
 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 cmp "$tmpdir/expected.md" "$note"
+
+OBSIDIAN_TEST_AUTOSAVE=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
