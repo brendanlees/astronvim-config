@@ -237,7 +237,8 @@ function M.outgoing()
     for _, ref in ipairs(refs.extract(line, { row = row - 1, lexical = true })) do
       local origin = Range.new(row - 1, ref.range.start_col, row - 1, ref.range.start_col + 1)
       local link = ref.embed and ref.raw:sub(2) or ref.raw
-      if not document:intersects(origin, Document.INLINE_EXCLUSIONS)
+      if
+        not document:intersects(origin, Document.INLINE_EXCLUSIONS)
         and not document:intersects(ref.range, Document.COMMENTS)
         and not seen[link]
       then
