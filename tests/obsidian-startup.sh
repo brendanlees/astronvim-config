@@ -62,6 +62,28 @@ vim.api.nvim_create_autocmd("VimEnter", {
         assert(vim.fn.maparg("<LocalLeader>.f", "n") ~= "", "search mappings missing")
         assert(vim.fn.maparg(",b", "n") ~= "", "bookmark toggle mapping missing")
         assert(vim.fn.maparg(",.b", "n") == "<Cmd>Obsidian bookmarks<CR>", "bookmark search mapping missing")
+        assert(vim.fn.maparg(",h", "n") ~= "", "word highlight mapping missing")
+        assert(vim.fn.maparg(",h", "x") ~= "", "selection highlight mapping missing")
+        assert(vim.fn.maparg(",hh", "n") ~= "", "line highlight mapping missing")
+        local hl = vim.api.nvim_get_hl(0, { name = "ObsidianHighlightText", link = false })
+        assert(hl.fg == 0xffffff and hl.bg == 0x806600, "highlight colours were not applied")
+        if vim.env.OBSIDIAN_TEST_HIGHLIGHTS == "1" then
+          vim.api.nvim_buf_set_lines(0, -1, -1, false, { "Highlight integration check" })
+          vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(0), 0 })
+          vim.fn.maparg(",hh", "n", false, true).callback()
+          assert(vim.api.nvim_get_current_line() == "==Highlight integration check==")
+          require("obsidian.ui").update(0)
+          local found = false
+          for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(
+            0, vim.api.nvim_get_namespaces().ObsidianUI, 0, -1, { details = true }
+          )) do
+            if mark[4].hl_group == "ObsidianHighlightText" then found = true end
+          end
+          assert(found, "Obsidian did not render the highlighted passage")
+          vim.cmd.colorscheme "habamax"
+          hl = vim.api.nvim_get_hl(0, { name = "ObsidianHighlightText", link = false })
+          assert(hl.fg == 0xffffff and hl.bg == 0x806600, "theme change replaced highlight colours")
+        end
         if vim.env.OBSIDIAN_TEST_BOOKMARKS == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-bookmarks.lua")
         end
@@ -111,3 +133,4 @@ cmp "$tmpdir/expected.md" "$note"
 
 OBSIDIAN_TEST_AUTOSAVE=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_BOOKMARKS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
+OBSIDIAN_TEST_HIGHLIGHTS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"

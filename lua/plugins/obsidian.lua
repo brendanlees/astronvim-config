@@ -11,6 +11,7 @@ return {
 
   init = function()
     require("user.obsidian.autosave").setup(vault)
+    require("user.obsidian.highlights").setup()
     -- Register before lazy loading so Obsidian's first BufEnter check sees this.
     vim.api.nvim_create_autocmd({ "BufReadPre", "BufNewFile", "BufEnter" }, {
       group = vim.api.nvim_create_augroup("obsidian_conceal", { clear = true }),
@@ -25,6 +26,9 @@ return {
         path = vault,
       },
     }
+    opts.ui = opts.ui or {}
+    opts.ui.hl_groups = opts.ui.hl_groups or {}
+    opts.ui.hl_groups.ObsidianHighlightText = require("user.obsidian.highlights").style
     opts.legacy_commands = false
     opts.cache = { enabled = true, backend = "json" }
     opts.callbacks = opts.callbacks or {}
@@ -33,6 +37,7 @@ return {
       require("user.obsidian.templates").attach()
       require("user.obsidian.search").attach()
       require("user.obsidian.bookmarks").attach()
+      require("user.obsidian.highlights").attach()
     end
     opts.callbacks.create_note = function(note)
       note.template = note.template or require("user.obsidian.periodic").template_for_note(note)
