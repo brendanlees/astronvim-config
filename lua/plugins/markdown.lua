@@ -1,24 +1,4 @@
--- Keep list editing out of code fences and YAML frontmatter.
-local function markdown_text()
-  if vim.bo.filetype ~= "markdown" or vim.bo.buftype ~= "" then return false end
-  local parser = vim.treesitter.get_parser(0, "markdown", { error = false })
-  if not parser then return false end
-  parser:parse()
-  local node = vim.treesitter.get_node { ignore_injections = true }
-  while node do
-    local kind = node:type()
-    if
-      kind == "fenced_code_block"
-      or kind == "indented_code_block"
-      or kind == "minus_metadata"
-      or kind == "plus_metadata"
-    then
-      return false
-    end
-    node = node:parent()
-  end
-  return true
-end
+local function markdown_text() return require("markdown_editing").is_text() end
 
 ---@type LazySpec
 return {
@@ -30,6 +10,7 @@ return {
       buffers = { write_to_disk = false },
     },
     init = function()
+      require("markdown_appearance").setup()
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("markdown_otter", { clear = true }),
         pattern = "markdown",
@@ -40,6 +21,7 @@ return {
               and vim.bo[ev.buf].filetype == "markdown"
               and vim.bo[ev.buf].buftype == ""
             then
+              require("markdown_appearance").attach(ev.buf)
               vim.api.nvim_buf_call(ev.buf, function() require("otter").activate() end)
             end
           end)
@@ -72,6 +54,12 @@ return {
       require("bullets").setup(opts)
       local function attach(buf)
         vim.keymap.set(
+          { "n", "x" },
+          "<LocalLeader>L",
+          function() require("markdown_editing").menu() end,
+          { buffer = buf, desc = "Change Markdown list type" }
+        )
+        vim.keymap.set(
           "n",
           "o",
           function() return markdown_text() and "<Cmd>InsertNewBullet<CR>" or "o" end,
@@ -89,18 +77,18 @@ return {
   {
     "saghen/blink.cmp",
     optional = true,
-    opts = {
-      keymap = {
-        ["<CR>"] = {
-          "accept",
-          function()
-            if markdown_text() then
-              return vim.api.nvim_replace_termcodes("<Cmd>InsertNewBullet<CR>", true, false, true)
-            end
-          end,
-          "fallback",
-        },
-      },
-    },
+    opts = function(_, opts)
+      table.insert(opts.keymap["<Tab>"], 1, function() return require("markdown_editing").tab(1) end)
+      table.insert(opts.keymap["<S-Tab>"], 1, function() return require("markdown_editing").tab(-1) end)
+      opts.keymap["<CR>"] = {
+        "accept",
+        function()
+          if markdown_text() then
+            return vim.api.nvim_replace_termcodes("<Cmd>InsertNewBullet<CR>", true, false, true)
+          end
+        end,
+        "fallback",
+      }
+    end,
   },
 }
