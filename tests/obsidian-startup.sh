@@ -13,7 +13,7 @@ export HOME="$tmpdir/home with spaces"
 export XDG_CONFIG_HOME="$tmpdir/config" XDG_DATA_HOME="$tmpdir/data"
 export XDG_STATE_HOME="$tmpdir/state" XDG_CACHE_HOME="$tmpdir/cache"
 
-vault="$HOME/Notes/Obsidian/Vaults/PKM Vault/PKM"
+vault="$HOME/Notes/Obsidian/PKM"
 mkdir -p "$vault/system/templates/nvim"
 printf '# Daily-note regression fixture\n' >"$vault/system/templates/nvim/daily.md"
 
@@ -41,7 +41,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
     vim.schedule(function()
       local ok, err = pcall(function()
         assert(Obsidian and Obsidian.opts, "Obsidian did not finish setup")
-        local root = assert(vim.uv.fs_realpath(vim.env.HOME .. "/Notes/Obsidian/Vaults/PKM Vault/PKM"))
+        local root = assert(vim.uv.fs_realpath(vim.env.HOME .. "/Notes/Obsidian/PKM"))
         local relative = require("obsidian.date").format(os.time(), Obsidian.opts.daily_notes.date_format, 1)
         local expected = root .. "/__notes/daily/" .. relative .. ".md"
         assert(vim.wait(3000, function() return vim.api.nvim_buf_get_name(0) == expected end),
@@ -74,4 +74,8 @@ note=$(find "$vault/__notes/daily" -name '*.md' -type f)
 printf '\nExisting note must be preserved\n' >>"$note"
 cp "$note" "$tmpdir/expected.md"
 nvim --headless -i NONE -u "$tmpdir/init.lua" "$vault" -c 'Obsidian today'
+cmp "$tmpdir/expected.md" "$note"
+
+# Direct file opens must load Obsidian and its note mappings without a command.
+nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 cmp "$tmpdir/expected.md" "$note"
