@@ -57,7 +57,7 @@ function M.tab(direction)
   local bullet = item(vim.api.nvim_get_current_line())
   if bullet and bullet.text:match "^%s*$" then
     return vim.api.nvim_replace_termcodes(
-      "<Cmd>lua require('markdown_editing').indent(" .. direction .. ")<CR>",
+      "<Cmd>lua require('user.markdown.editing').indent(" .. direction .. ")<CR>",
       true,
       false,
       true

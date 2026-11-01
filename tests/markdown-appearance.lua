@@ -1,7 +1,7 @@
 vim.opt.rtp:append(vim.env.NVIM_TEST_ROOT)
 vim.opt.rtp:append(vim.env.NVIM_TEST_SITE)
 vim.o.swapfile = false
-local appearance = require "markdown_appearance"
+local appearance = require "user.markdown.appearance"
 local inline = vim.treesitter.query.get("markdown_inline", "highlights")
 local function captures(source)
   local root = vim.treesitter.get_string_parser(source, "markdown"):parse()[1]:root()

@@ -25,12 +25,12 @@ return {
     opts.cache = { enabled = true, backend = "json" }
     opts.callbacks = opts.callbacks or {}
     opts.callbacks.enter_note = function()
-      require("obsidian_periodic").attach()
-      require("obsidian_templates").attach()
-      require("obsidian_search").attach()
+      require("user.obsidian.periodic").attach()
+      require("user.obsidian.templates").attach()
+      require("user.obsidian.search").attach()
     end
     opts.callbacks.create_note = function(note)
-      note.template = note.template or require("obsidian_periodic").template_for_note(note)
+      note.template = note.template or require("user.obsidian.periodic").template_for_note(note)
     end
     opts.daily_notes = {
       template = "daily.md",
@@ -42,7 +42,7 @@ return {
     opts.templates = {
       folder = "system/templates/nvim",
       substitutions = {
-        period = function(ctx, format) return require("obsidian_periodic").template_date(ctx, format) end,
+        period = function(ctx, format) return require("user.obsidian.periodic").template_date(ctx, format) end,
       },
     }
 

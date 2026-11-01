@@ -223,8 +223,8 @@ M["Music teaching resource"] = {
   end,
 }
 
-M.Course = require "obsidian_templates.study"
-M["YouTube video"] = require "obsidian_templates.youtube"
+M.Course = require "user.obsidian.templates.study"
+M["YouTube video"] = require "user.obsidian.templates.youtube"
 M.Daily = { periodic = "daily" }
 M.Weekly = { periodic = "weekly" }
 M.Monthly = { periodic = "monthly" }

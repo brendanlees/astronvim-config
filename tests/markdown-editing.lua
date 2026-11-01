@@ -96,7 +96,7 @@ feed "A<CR>local next_value = 2<Esc>"
 assert(#lines() == 2)
 print "PASS: list automation excluded from fenced code, YAML frontmatter, and non-Markdown buffers"
 
-local editing = require "markdown_editing"
+local editing = require "user.markdown.editing"
 for _, marker in ipairs { "- ", "1. ", "- [ ] " } do
   buffer({ "- parent", marker }, 2)
   feed "A<Tab><Esc>"

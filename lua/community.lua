@@ -10,14 +10,11 @@ return {
   -- packs
   { import = "astrocommunity.pack.ansible" },
   { import = "astrocommunity.pack.bash" },
-  -- { import = "astrocommunity.pack.blade" },
   { import = "astrocommunity.pack.chezmoi" },
   { import = "astrocommunity.pack.docker" },
   { import = "astrocommunity.pack.html-css" },
-  -- { import = "astrocommunity.pack.laravel" },
   { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.pack.markdown" },
-  -- { import = "astrocommunity.markdown-and-latex.render-markdown-nvim" },
   { import = "astrocommunity.pack.php" },
   { import = "astrocommunity.pack.prettier" },
   { import = "astrocommunity.pack.python" },
@@ -27,7 +24,6 @@ return {
   { import = "astrocommunity.split-and-window.colorful-winsep-nvim" },
   -- file explorer trial: keep Neo-tree available while evaluating Oil
   { import = "astrocommunity.file-explorer.oil-nvim" },
-  -- { import = "astrocommunity.docker.lazydocker" },
   --- tmux
   { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
   -- theme — colorscheme is selected dynamically in plugins/astroui.lua from
@@ -55,11 +51,6 @@ return {
   { "vossenwout/guts.nvim", lazy = true },
   { "metalelf0/black-metal-theme-neovim", lazy = true },
   { import = "astrocommunity.colorscheme.vim-moonfly-colors" },
-  -- { import = "astrocommunity.recipes.heirline-nvchad-statusline" },
-  -- { import = "astrocommunity.recipes.picker-nvchad-theme" },
-  -- { import = "astrocommunity.recipes.neo-tree-dark" },
-  -- { import = "astrocommunity.recipes.telescope-nvchad-theme" },
-  -- { import = "astrocommunity.recipes.telescope-nvim-snacks" },
   { import = "astrocommunity.recipes.vscode-icons" },
   { import = "astrocommunity.recipes.disable-borders" },
   { import = "astrocommunity.indent.indent-rainbowline" },
@@ -68,40 +59,4 @@ return {
   { import = "astrocommunity.utility.noice-nvim" },
   -- motion
   { import = "astrocommunity.scrolling.mini-animate" },
-
-  -----------------------------------------------------------------------------
-  -- Available packs (uncomment to enable). After uncommenting run :Lazy sync
-  -- to install; after re-commenting run :Lazy clean to remove from disk.
-  -----------------------------------------------------------------------------
-  -- Languages
-  -- { import = "astrocommunity.pack.rust" },
-  -- { import = "astrocommunity.pack.go" },
-  -- { import = "astrocommunity.pack.typescript" },
-  -- { import = "astrocommunity.pack.typescript-deno" },
-  -- { import = "astrocommunity.pack.ruby" },
-  -- { import = "astrocommunity.pack.elixir" },
-  -- { import = "astrocommunity.pack.kotlin" },
-  -- { import = "astrocommunity.pack.java" },
-  -- { import = "astrocommunity.pack.swift" },
-  -- { import = "astrocommunity.pack.zig" },
-  -- { import = "astrocommunity.pack.cpp" },
-  -- { import = "astrocommunity.pack.cs" },
-  -- { import = "astrocommunity.pack.haskell" },
-  -- { import = "astrocommunity.pack.dart" },
-  -- { import = "astrocommunity.pack.julia" },
-
-  -- DevOps / Infra
-  -- { import = "astrocommunity.pack.terraform" },
-  -- { import = "astrocommunity.pack.nix" },
-  -- { import = "astrocommunity.pack.cmake" },
-  -- { import = "astrocommunity.pack.helm" },
-  -- { import = "astrocommunity.pack.kubernetes" },
-
-  -- Editor extras
-  -- { import = "astrocommunity.completion.copilot-lua" },
-  -- { import = "astrocommunity.editing-support.todo-comments-nvim" },
-  -- { import = "astrocommunity.git.diffview-nvim" },
-  -- { import = "astrocommunity.fuzzy-finder.telescope-nvim" },
-  -- { import = "astrocommunity.test.neotest" },
-  -- { import = "astrocommunity.debugging.nvim-dap" },
 }

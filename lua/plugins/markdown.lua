@@ -1,4 +1,4 @@
-local function markdown_text() return require("markdown_editing").is_text() end
+local function markdown_text() return require("user.markdown.editing").is_text() end
 
 ---@type LazySpec
 return {
@@ -10,7 +10,7 @@ return {
       buffers = { write_to_disk = false },
     },
     init = function()
-      require("markdown_appearance").setup()
+      require("user.markdown.appearance").setup()
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("markdown_otter", { clear = true }),
         pattern = "markdown",
@@ -21,7 +21,7 @@ return {
               and vim.bo[ev.buf].filetype == "markdown"
               and vim.bo[ev.buf].buftype == ""
             then
-              require("markdown_appearance").attach(ev.buf)
+              require("user.markdown.appearance").attach(ev.buf)
               vim.api.nvim_buf_call(ev.buf, function() require("otter").activate() end)
             end
           end)
@@ -56,7 +56,7 @@ return {
         vim.keymap.set(
           { "n", "x" },
           "<LocalLeader>L",
-          function() require("markdown_editing").menu() end,
+          function() require("user.markdown.editing").menu() end,
           { buffer = buf, desc = "Change Markdown list type" }
         )
         vim.keymap.set(
@@ -78,8 +78,8 @@ return {
     "saghen/blink.cmp",
     optional = true,
     opts = function(_, opts)
-      table.insert(opts.keymap["<Tab>"], 1, function() return require("markdown_editing").tab(1) end)
-      table.insert(opts.keymap["<S-Tab>"], 1, function() return require("markdown_editing").tab(-1) end)
+      table.insert(opts.keymap["<Tab>"], 1, function() return require("user.markdown.editing").tab(1) end)
+      table.insert(opts.keymap["<S-Tab>"], 1, function() return require("user.markdown.editing").tab(-1) end)
       opts.keymap["<CR>"] = {
         "accept",
         function()

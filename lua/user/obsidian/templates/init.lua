@@ -1,5 +1,5 @@
 local M = {}
-local recipes = require "obsidian_templates.recipes"
+local recipes = require "user.obsidian.templates.recipes"
 
 local function guard(callback)
   local ok, err = pcall(callback)
@@ -98,7 +98,7 @@ function M.pick()
   select(labels, "New note from template", function(label)
     local recipe = recipes[label]
     if recipe.periodic then
-      require("obsidian_periodic").open_current(recipe.periodic)
+      require("user.obsidian.periodic").open_current(recipe.periodic)
       return
     end
     local answers = {}
