@@ -31,6 +31,8 @@ local function notes_folder()
   return vim.fs.joinpath(root, Obsidian.opts.daily_notes.folder)
 end
 
+function M.is_note(path) return vim.startswith(path, notes_folder() .. "/") and parse_note(path) ~= nil end
+
 local function list_notes(folder, kind)
   local notes = {}
   for _, path in
@@ -92,10 +94,22 @@ function M.search(kind)
     if a.timestamp == b.timestamp then return a.path < b.path end
     return a.timestamp > b.timestamp
   end)
+  for _, note in ipairs(notes) do
+    note.label = vim.fs.basename(note.path):sub(1, -4)
+    if kind == "weekly" then
+      local ok, loaded = pcall(require("obsidian.note").from_file, note.path)
+      local aliases = {}
+      for i = 1, 2 do
+        local alias = ok and loaded.aliases[i]
+        if type(alias) == "string" and vim.trim(alias) ~= "" then aliases[#aliases + 1] = vim.trim(alias) end
+      end
+      if #aliases > 0 then note.label = table.concat(aliases, " - ") end
+    end
+  end
   local picker = require "obsidian.picker"
   picker.select(notes, {
     prompt = "Search " .. kind .. " notes",
-    format_item = function(note) return vim.fs.basename(note.path):sub(1, -4) end,
+    format_item = function(note) return note.label end,
     preview_item = function(note) return picker.preview_path(note.path) end,
   }, function(choices)
     if choices and choices[1] then require("obsidian.api").open_note(choices[1].path) end

@@ -143,9 +143,9 @@ function M.setup()
 end
 
 function M.attach()
-  vim.keymap.set("n", "<LocalLeader>h", M.word, { buffer = true, desc = "Toggle highlight or start a new one" })
-  vim.keymap.set("n", "<LocalLeader>hh", M.line, { buffer = true, desc = "Toggle line highlight" })
-  vim.keymap.set("x", "<LocalLeader>h", M.selection, { buffer = true, desc = "Toggle selected text highlight" })
+  vim.keymap.set("n", "<LocalLeader>/", M.word, { buffer = true, desc = "Toggle highlight or start a new one" })
+  vim.keymap.set("n", "<LocalLeader>//", M.line, { buffer = true, desc = "Toggle line highlight" })
+  vim.keymap.set("x", "<LocalLeader>/", M.selection, { buffer = true, desc = "Toggle selected text highlight" })
 end
 
 return M

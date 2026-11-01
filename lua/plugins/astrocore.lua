@@ -55,6 +55,12 @@ return {
         -- This can be found in the `lua/lazy_setup.lua` file
       },
     },
+    commands = {
+      CopyMarkdownLink = {
+        function() require("user.file_link").copy() end,
+        desc = "Copy current file as a Markdown link",
+      },
+    },
     -- Mappings can be configured through AstroCore as well.
     -- NOTE: keycodes follow the casing in the vimdocs. For example, `<Leader>` must be capitalized
     mappings = {
@@ -62,6 +68,7 @@ return {
       n = {
         -- second key is the lefthand side of the map
         ["<C-Q>"] = { "<Cmd>confirm q<CR>", desc = "Quit window (confirm unsaved changes)" },
+        ["<D-C-M-c>"] = { "<Cmd>CopyMarkdownLink<CR>", desc = "Copy current file as a Markdown link" },
 
         -- navigate buffer tabs
         ["]b"] = { function() require("astrocore.buffer").nav(vim.v.count1) end, desc = "Next buffer" },

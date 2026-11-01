@@ -74,6 +74,7 @@ local function scan(mode, callback)
   local ignored = require("obsidian.lib.glob").gitignore(exclude, { ignoreCase = true })
   local function eligible(path)
     if not vim.startswith(path, root .. "/") or not path:lower():match "%.md$" then return false end
+    if mode == "unreviewed" and not require("user.obsidian.periodic").is_note(path) then return false end
     local relative = path:sub(#root + 2)
     return not vim.startswith(relative, ".") and not relative:find("/.", 1, true) and not ignored:check(relative)
   end
@@ -138,7 +139,7 @@ function M.names()
 end
 
 function M.unreviewed()
-  scan("unreviewed", function(entries) pick_notes(entries, "Notes: #_unreviewed") end)
+  scan("unreviewed", function(entries) pick_notes(entries, "Periodic notes: #_unreviewed") end)
 end
 
 function M.types()
@@ -266,7 +267,7 @@ function M.attach()
     d = { function() require("user.obsidian.periodic").search "daily" end, "Search daily notes" },
     w = { function() require("user.obsidian.periodic").search "weekly" end, "Search weekly notes" },
     e = { function() require("user.obsidian.periodic").search "monthly" end, "Search monthly notes" },
-    u = { M.unreviewed, "Search unreviewed notes" },
+    u = { M.unreviewed, "Search unreviewed periodic notes" },
     t = { M.types, "Search by note type" },
     f = { M.names, "Search note names and aliases" },
     g = { M.grep, "Search vault text" },

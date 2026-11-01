@@ -19,9 +19,9 @@ local function expect(expected)
   assert(vim.deep_equal(actual, expected), vim.inspect(actual))
 end
 buffer { "A whole line" }
-feed ",hh"
+feed ",//"
 expect { "==A whole line==" }
-feed ",hh"
+feed ",//"
 expect { "A whole line" }
 
 for _, pair in ipairs {
@@ -36,23 +36,23 @@ for _, pair in ipairs {
   { "==one== and ==two==", "==one and two==" },
 } do
   buffer { pair[1] }
-  feed ",hh"
+  feed ",//"
   expect { pair[2] }
-  feed ",hh"
+  feed ",//"
   expect { (pair[2]:gsub("==", "")) }
 end
 
 buffer({ "some words here" }, 1, 6)
-feed ",h"
+feed ",/"
 expect { "some ==words== here" }
 vim.api.nvim_win_set_cursor(0, { 1, 9 })
-feed ",h"
+feed ",/"
 expect { "some words here" }
 buffer({ "an ==existing passage== here" }, 1, 13)
-feed ",h"
+feed ",/"
 expect { "an existing passage here" }
 buffer({ "café naïve" }, 1, 7)
-feed ",h"
+feed ",/"
 expect { "café ==naïve==" }
 
 for _, case in ipairs {
@@ -68,11 +68,11 @@ for _, case in ipairs {
   { line = "> ", col = 1, expected = "> ==new text==" },
 } do
   buffer({ case.line }, 1, case.col)
-  feed ",hnew text<Esc>"
+  feed ",/new text<Esc>"
   expect { case.expected }
 end
 buffer { "" }
-feed ",h<Esc>"
+feed ",/<Esc>"
 expect { "====" }
 assert(vim.api.nvim_win_get_cursor(0)[2] == 1, "Cursor was not between the delimiter pairs before Escape")
 
@@ -85,60 +85,60 @@ for _, case in ipairs {
   { lines = { "%% %%" }, row = 1, col = 2 },
 } do
   buffer(case.lines, case.row, case.col)
-  feed ",h<Esc>"
+  feed ",/<Esc>"
   expect(case.lines)
 end
 buffer({ "" }, 1, 0, "lua")
-feed ",h<Esc>"
+feed ",/<Esc>"
 expect { "" }
 buffer { "" }
 vim.bo.readonly = true
-feed ",h<Esc>"
+feed ",/<Esc>"
 expect { "" }
 vim.bo.readonly = false
 vim.bo.modifiable = false
-feed ",h<Esc>"
+feed ",/<Esc>"
 expect { "" }
 vim.bo.modifiable = true
 vim.bo.buftype = "nofile"
-feed ",h<Esc>"
+feed ",/<Esc>"
 expect { "" }
 
 buffer { "one two three" }
-feed "0wvaw,h"
+feed "0wvaw,/"
 expect { "one ==two== three" }
 buffer { "one two three" }
-feed "0wveo,h"
+feed "0wveo,/"
 expect { "one ==two== three" }
 buffer { "café is good" }
-feed "0ve,h"
+feed "0ve,/"
 expect { "==café== is good" }
 buffer { "one two" }
 vim.o.selection = "exclusive"
-feed "0v3l,h"
+feed "0v3l,/"
 expect { "==one== two" }
 vim.o.selection = "inclusive"
 
 buffer { "- first item", "", "second line" }
-feed "V2j,h"
+feed "V2j,/"
 expect { "- ==first item==", "", "==second line==" }
 feed "u"
 expect { "- first item", "", "second line" }
 buffer { "first line", "second line" }
-feed "0wvj0e,h"
+feed "0wvj0e,/"
 expect { "first ==line==", "==second== line" }
 
 buffer { "---", "title: protected", "---", "```lua", "local value = 1", "```", "plain text" }
 for _, row in ipairs { 1, 2, 3, 4, 5, 6 } do
   vim.api.nvim_win_set_cursor(0, { row, 0 })
-  feed ",hh"
+  feed ",//"
 end
 expect { "---", "title: protected", "---", "```lua", "local value = 1", "```", "plain text" }
 vim.api.nvim_win_set_cursor(0, { 1, 0 })
-feed "V6j,h"
+feed "V6j,/"
 expect { "---", "title: protected", "---", "```lua", "local value = 1", "```", "==plain text==" }
 buffer { "", "   ", "- " }
-feed "V2j,h"
+feed "V2j,/"
 expect { "", "   ", "- " }
 for _, code in ipairs {
   "    indented code",
@@ -147,23 +147,23 @@ for _, code in ipairs {
   "%% hidden comment %%",
 } do
   buffer { code }
-  feed ",hh"
+  feed ",//"
   expect { code }
 end
 buffer({ "text `inline code` here" }, 1, 7)
-feed ",h"
+feed ",/"
 expect { "text `inline code` here" }
 buffer({ "local value = 1" }, 1, 0, "lua")
-feed ",hh"
+feed ",//"
 expect { "local value = 1" }
 
 buffer { "read-only text" }
 vim.bo.readonly = true
-feed ",hh"
+feed ",//"
 expect { "read-only text" }
 vim.bo.readonly = false
 vim.bo.modifiable = false
-feed ",hh"
+feed ",//"
 expect { "read-only text" }
 vim.bo.modifiable = true
 
