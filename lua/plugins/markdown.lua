@@ -61,6 +61,22 @@ return {
           function() require("user.markdown.editing").menu() end,
           { buffer = buf, desc = "Change Markdown list type" }
         )
+        for key, direction in pairs { ["<Tab>"] = 1, ["<S-Tab>"] = -1 } do
+          vim.keymap.set(
+            "n",
+            key,
+            function()
+              return require("user.markdown.editing").tab(direction, true)
+                or vim.api.nvim_replace_termcodes(key, true, false, true)
+            end,
+            {
+              buffer = buf,
+              expr = true,
+              replace_keycodes = false,
+              desc = direction > 0 and "Indent Markdown list item" or "Outdent Markdown list item",
+            }
+          )
+        end
         vim.keymap.set(
           "n",
           "o",

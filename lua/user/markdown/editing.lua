@@ -52,10 +52,10 @@ function M.indent(direction)
 end
 
 -- Return a command rather than editing here: Blink evaluates this under textlock.
-function M.tab(direction)
+function M.tab(direction, allow_text)
   if not M.is_text() then return end
   local bullet = item(vim.api.nvim_get_current_line())
-  if bullet and bullet.text:match "^%s*$" then
+  if bullet and (allow_text or bullet.text:match "^%s*$") then
     return vim.api.nvim_replace_termcodes(
       "<Cmd>lua require('user.markdown.editing').indent(" .. direction .. ")<CR>",
       true,

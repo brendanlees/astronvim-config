@@ -199,6 +199,30 @@ buffer({ "~~~text", "- ", "~~~" }, 2)
 assert(editing.tab(1) == nil)
 print "PASS: Tab/Shift-Tab move empty bullets, numbers and checkboxes; completion elsewhere and syntax exclusions preserved"
 
+for _, marker in ipairs { "- ", "+ ", "* ", "1. ", "1) ", "- [ ] ", "- [x] " } do
+  buffer({ marker .. "parent", marker .. "child" }, 2)
+  feed "<Tab>"
+  assert(lines()[2] == "    " .. marker .. "child", vim.inspect(lines()))
+  assert(vim.bo.shiftwidth == 2 and vim.fn.mode() == "n")
+  feed "<S-Tab>"
+  local outer = marker == "1. " and "2. " or marker == "1) " and "2) " or marker
+  assert(lines()[2] == outer .. "child", vim.inspect(lines()))
+  feed "<S-Tab>"
+  assert(lines()[2] == outer .. "child", "Outdent went past column zero")
+end
+for _, fixture in ipairs {
+  { lines = { "plain prose" }, row = 1 },
+  { lines = { "```text", "- code", "```" }, row = 2 },
+  { lines = { "---", "items:", "  - yaml", "---" }, row = 3 },
+} do
+  buffer(fixture.lines, fixture.row)
+  feed "<Tab><S-Tab>"
+  assert(vim.deep_equal(lines(), fixture.lines), vim.inspect(lines()))
+end
+buffer({ "- not Markdown" }, 1, "lua")
+assert(vim.fn.maparg("<Tab>", "n") == "" and vim.fn.maparg("<S-Tab>", "n") == "")
+print "PASS: normal Tab/Shift-Tab indent populated lists and tasks, renumber, clamp at zero, and exclude prose/code/YAML"
+
 local b = buffer { "- one", "- [x] two", "  - nested", "- three" }
 editing.convert(b, 1, 4, "number")
 assert(vim.deep_equal(lines(), { "1. one", "2. two", "  1. nested", "3. three" }), vim.inspect(lines()))
