@@ -1,6 +1,6 @@
 local M = {}
 local states = {}
-local delay_ms = 1500
+local delay_ms = 10000
 
 local function cancel(state)
   if state.timer and not state.timer:is_closing() then
@@ -69,7 +69,8 @@ function M.setup(vault)
     group = group,
     callback = function(ev) track(ev.buf) end,
   })
-  vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP" }, {
+  -- Wait for inactivity, not just a pause in typing while navigating the note.
+  vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI", "TextChangedP", "CursorMoved", "CursorMovedI" }, {
     group = group,
     callback = function(ev)
       local state = states[ev.buf]

@@ -9,6 +9,8 @@ trap 'rm -rf "$tmpdir"' EXIT
 export OBSIDIAN_TEST_ROOT="$repo_root" OBSIDIAN_TEST_TMP="$tmpdir"
 export OBSIDIAN_TEST_LAZY="$plugin_root/lazy.nvim"
 export OBSIDIAN_TEST_PLUGIN="$plugin_root/obsidian.nvim"
+export OBSIDIAN_TEST_LSPCONFIG="$plugin_root/nvim-lspconfig"
+export OBSIDIAN_TEST_OXIDE_BIN=${MARKDOWN_OXIDE_BIN:-"${XDG_DATA_HOME:-$HOME/.local/share}/nvim/mason/bin/markdown-oxide"}
 export HOME="$tmpdir/home with spaces"
 export XDG_CONFIG_HOME="$tmpdir/config" XDG_DATA_HOME="$tmpdir/data"
 export XDG_STATE_HOME="$tmpdir/state" XDG_CACHE_HOME="$tmpdir/cache"
@@ -25,6 +27,15 @@ vim.g.maplocalleader = ","
 local errors = {}
 vim.notify = function(message, level)
   if level == vim.log.levels.ERROR then errors[#errors + 1] = tostring(message) end
+end
+local trial = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/markdown-oxide.lua")[2]
+trial.init()
+if vim.env.OBSIDIAN_TEST_COMPLETION == "1" then
+  vim.opt.rtp:append(vim.env.OBSIDIAN_TEST_LSPCONFIG)
+  local config = vim.deepcopy(trial.opts.config.markdown_oxide)
+  config.cmd = { vim.env.OBSIDIAN_TEST_OXIDE_BIN }
+  vim.lsp.config("markdown_oxide", config)
+  vim.lsp.enable("markdown_oxide")
 end
 local spec = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/obsidian.lua")
 spec.dir = vim.env.OBSIDIAN_TEST_PLUGIN
@@ -91,6 +102,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
         for _, key in ipairs { "d", "w", "e" } do
           assert(vim.fn.maparg(",." .. key, "n") ~= "", "periodic search mapping missing: " .. key)
         end
+        if vim.env.OBSIDIAN_TEST_COMPLETION == "1" then
+          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-completion.lua")
+        end
         if vim.env.OBSIDIAN_TEST_PERIODIC_SEARCH == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-periodic-search.lua")
         end
@@ -106,9 +120,12 @@ vim.api.nvim_create_autocmd("VimEnter", {
           local marker = "Autosaved through Obsidian write hooks"
           vim.api.nvim_buf_set_lines(0, -1, -1, false, { marker })
           vim.api.nvim_exec_autocmds("TextChangedI", { buffer = 0 })
-          assert(vim.wait(3000, function()
+          assert(not vim.wait(2000, function()
             return vim.tbl_contains(vim.fn.readfile(expected), marker)
-          end), "idle autosave did not reach disk")
+          end), "idle autosave still uses the old short delay")
+          assert(vim.wait(10000, function()
+            return vim.tbl_contains(vim.fn.readfile(expected), marker)
+          end), "idle autosave did not reach disk after ten seconds")
           assert(writes == 1 and not vim.bo.modified, "Obsidian write hooks did not complete")
           vim.api.nvim_buf_set_lines(0, -1, -1, false, { "Saved on leaving the note" })
           vim.api.nvim_exec_autocmds("FocusLost", { buffer = 0 })
@@ -145,3 +162,25 @@ OBSIDIAN_TEST_AUTOSAVE=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_BOOKMARKS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_HIGHLIGHTS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_PERIODIC_SEARCH=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
+
+if [[ -x "$OBSIDIAN_TEST_OXIDE_BIN" ]]; then
+  # Include stale core settings to ensure the vault override takes precedence.
+  mkdir -p "$vault/.obsidian"
+  printf '%s\n' '{"folder":"__notes/_periodic/daily","format":"YYYY-MM-DD"}' >"$vault/.obsidian/daily-notes.json"
+  printf '%s\n' 'daily_notes_folder = ""' \
+    'dailynote = "__notes/daily/%Y/%m/%Y-%m-%-d -- %a %-d %B"' \
+    'excluded_folders = ["templates", "assets"]' \
+    'unresolved_diagnostics = false' 'semantic_tokens = false' \
+    'hover = false' 'inlay_hints = false' 'block_transclusion = false' >"$vault/.moxide.toml"
+  for folder in system/templates archive/templates system/assets .trash .obsidian; do
+    mkdir -p "$vault/$folder"
+    printf '%s\n' '# Excluded candidate' >"$vault/$folder/ExcludedCandidate.md"
+  done
+  mkdir -p "$vault/completion fixtures"
+  printf '%s\n' '---' 'aliases: ["Friendly title", "Second alias"]' '---' '# Topic' \
+    'A paragraph ^sampleblock' '#oxide-test-tag' >"$vault/completion fixtures/Canonical note.md"
+  printf '%s\n' '[[Fri' >"$vault/completion probe.md"
+  OBSIDIAN_TEST_COMPLETION=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
+else
+  printf '\nSKIP: markdown-oxide completion test (binary not installed)\n'
+fi

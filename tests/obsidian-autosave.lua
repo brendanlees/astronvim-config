@@ -6,6 +6,14 @@ local warnings = {}
 vim.notify = function(message) warnings[#warnings + 1] = message end
 dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/obsidian.lua").init()
 
+-- Check the production delay while keeping repeated timer tests quick.
+-- The startup integration test also exercises the full ten-second wait.
+local defer_fn = vim.defer_fn
+vim.defer_fn = function(callback, delay)
+  assert(delay == 10000, "Autosave must wait ten seconds after activity")
+  return defer_fn(callback, delay / 10)
+end
+
 local function event(name) vim.api.nvim_exec_autocmds(name, { buffer = 0 }) end
 local function text(path) return table.concat(vim.fn.readfile(path), "\n") end
 local function open(path, content)
@@ -28,11 +36,16 @@ local pre, post = 0, 0
 vim.api.nvim_create_autocmd("BufWritePre", { buffer = buf, callback = function() pre = pre + 1 end })
 vim.api.nvim_create_autocmd("BufWritePost", { buffer = buf, callback = function() post = post + 1 end })
 change("first change", "TextChangedI")
-vim.wait(900, function() return false end)
+vim.wait(600, function() return false end)
 assert(text(note) == "original", "Saved before the idle delay")
 change("second change", "TextChangedP")
-vim.wait(900, function() return false end)
+vim.wait(600, function() return false end)
 assert(text(note) == "original", "New typing did not restart the delay")
+for _, name in ipairs { "CursorMoved", "CursorMovedI" } do
+  event(name)
+  vim.wait(600, function() return false end)
+  assert(text(note) == "original", name .. " did not restart the idle delay")
+end
 wait_saved(note, "second change")
 assert(not vim.bo.modified and pre == 1 and post == 1, "Idle save skipped write hooks")
 event "FocusLost"
@@ -191,4 +204,4 @@ event "FocusLost"
 assert(text(stale) == "remote text before setup", "Live setup adopted a newer disk baseline for stale text")
 assert(not vim.o.autowrite and not vim.o.autowriteall, "Global autowrite was enabled")
 assert(text(outside) == "original" and text(source) == "original", "Excluded buffers were saved by an idle timer")
-print "PASS: vault-only idle/leave/focus autosave, write hooks, exclusions, sync conflicts, failures, and timer cleanup"
+print "PASS: ten-second typing/cursor inactivity, immediate leave/focus saves, write hooks, exclusions, sync conflicts, failures, and timer cleanup"
