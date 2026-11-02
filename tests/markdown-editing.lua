@@ -12,10 +12,7 @@ local otter_spec, bullets_spec, blink_spec = specs[1], specs[2], specs[3]
 bullets_spec.config(nil, bullets_spec.opts)
 local cmp = require "blink.cmp"
 local blink_opts = {
-  keymap = {
-    ["<Tab>"] = { "select_next", "snippet_forward", "fallback" },
-    ["<S-Tab>"] = { "select_prev", "snippet_backward", "fallback" },
-  },
+  keymap = dofile(vim.env.NVIM_TEST_PLUGINS .. "/AstroNvim/lua/astronvim/plugins/blink.lua").opts.keymap,
 }
 blink_spec.opts(nil, blink_opts)
 cmp.setup(vim.tbl_deep_extend("force", blink_opts, {
@@ -35,10 +32,12 @@ local function buffer(lines, row, ft)
   vim.bo.shiftwidth = 2
   vim.bo.expandtab = true
   vim.api.nvim_win_set_cursor(0, { row or 1, 0 })
+  local mappings = require("blink.cmp.keymap").get_mappings(require("blink.cmp.config").keymap, "default")
   require("blink.cmp.keymap.apply").keymap_to_current_buffer {
-    ["<CR>"] = require("blink.cmp.config").keymap["<CR>"],
-    ["<Tab>"] = require("blink.cmp.config").keymap["<Tab>"],
-    ["<S-Tab>"] = require("blink.cmp.config").keymap["<S-Tab>"],
+    ["<CR>"] = mappings["<CR>"],
+    ["<C-y>"] = mappings["<C-y>"],
+    ["<Tab>"] = mappings["<Tab>"],
+    ["<S-Tab>"] = mappings["<S-Tab>"],
   }
   return vim.api.nvim_get_current_buf()
 end
@@ -95,52 +94,49 @@ feed "A<CR>next child<Esc>"
 assert(vim.deep_equal(lines(), { "- parent", "    - child", "    - next child" }), vim.inspect(lines()))
 print "PASS: Enter outdents empty nested bullets, numbered items, and tasks one level; top-level Enter exits"
 
--- A visible Markdown menu accepts its first item even without an explicit selection.
-local original_visible, original_select_accept = cmp.is_menu_visible, cmp.select_and_accept
-local selected_accept = 0
+-- Enter keeps editing text even with a completion menu; Ctrl-Y uses Blink's default acceptance.
+local original_visible, original_select_accept, original_accept = cmp.is_menu_visible, cmp.select_and_accept, cmp.accept
+local selected_accept, accepted = 0, 0
 cmp.is_menu_visible = function() return true end
 cmp.select_and_accept = function()
   selected_accept = selected_accept + 1
   return true
 end
-for _, content in ipairs { "[[Fri", "- [[Fri", "    - " } do
-  buffer { content }
-  feed "A<CR><Esc>"
-  assert(vim.deep_equal(lines(), { content }), "Enter inserted a newline instead of accepting completion")
-end
-assert(selected_accept == 3, "Markdown Enter did not use select_and_accept")
-buffer({ "local value" }, 1, "lua")
-feed "A<CR><Esc>"
-assert(selected_accept == 3 and #lines() == 2, "Markdown completion behavior leaked into source files")
-cmp.is_menu_visible = function() return false end
-buffer { "plain prose" }
-feed "A<CR>next line<Esc>"
-assert(vim.deep_equal(lines(), { "plain prose", "next line" }), "Enter without a menu stopped inserting newlines")
-assert(selected_accept == 3, "A hidden menu accepted a completion")
-cmp.is_menu_visible, cmp.select_and_accept = original_visible, original_select_accept
-print "PASS: visible Markdown completion takes Enter before newline/list handling; hidden menus and source files keep their behavior"
-
-buffer { "- first" }
-local original_accept = cmp.accept
-local accepted = 0
 cmp.accept = function()
   accepted = accepted + 1
   return true
 end
-feed "A<CR><Esc>"
-cmp.accept = original_accept
-assert(accepted == 1 and #lines() == 1)
+for _, fixture in ipairs {
+  { content = "[[Fri", expected = { "[[Fri", "" } },
+  { content = "- [[Fri", expected = { "- [[Fri", "- " } },
+  { content = "local value", ft = "lua", expected = { "local value", "" } },
+} do
+  buffer({ fixture.content }, 1, fixture.ft)
+  feed "A<CR><Esc>"
+  assert(vim.deep_equal(lines(), fixture.expected), vim.inspect(lines()))
+end
 buffer({ "- parent", "    - " }, 2)
-cmp.accept = function() return true end
 feed "A<CR><Esc>"
-cmp.accept = original_accept
-assert(lines()[2] == "    - " and #lines() == 2, "Empty-item outdent overrode completion acceptance")
+assert(vim.deep_equal(lines(), { "- parent", "- " }), "Completion menu blocked empty-item outdent")
+assert(selected_accept == 0 and accepted == 0, "Enter accepted a completion")
+for _, ft in ipairs { "markdown", "lua" } do
+  buffer({ "completion prefix" }, 1, ft)
+  feed "A<C-y><Esc>"
+  assert(vim.deep_equal(lines(), { "completion prefix" }), "Ctrl-Y inserted text instead of accepting")
+end
+assert(selected_accept == 2, "Ctrl-Y did not use Blink's default select_and_accept")
+cmp.is_menu_visible, cmp.select_and_accept, cmp.accept = original_visible, original_select_accept, original_accept
+buffer { "plain prose" }
+feed "A<CR>next line<Esc>"
+assert(vim.deep_equal(lines(), { "plain prose", "next line" }), "Enter without a menu stopped inserting newlines")
+print "PASS: Ctrl-Y accepts completion; Enter preserves newlines, list continuation, and empty-item outdent"
+
 vim.keymap.set("n", "<CR>", "<Cmd>let g:smart_seen=1<CR>", { buffer = true })
 feed "<CR>"
 assert(vim.g.smart_seen == 1)
 assert(vim.fn.maparg(".", "n") == "")
 assert(vim.fn.maparg("<Space>x", "n") == "")
-print "PASS: selected-completion dispatch precedes list handling; normal Enter, dot-repeat key and Space-x remain untouched"
+print "PASS: normal Enter, dot-repeat key and Space-x remain untouched"
 
 buffer({ "```text", "- not a list", "```" }, 2)
 feed "A<CR>plain<Esc>"

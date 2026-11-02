@@ -83,10 +83,6 @@ return {
       table.insert(opts.keymap["<Tab>"], 1, function() return require("user.markdown.editing").tab(1) end)
       table.insert(opts.keymap["<S-Tab>"], 1, function() return require("user.markdown.editing").tab(-1) end)
       opts.keymap["<CR>"] = {
-        function(cmp)
-          if vim.bo.filetype == "markdown" and cmp.is_menu_visible() then return cmp.select_and_accept() end
-        end,
-        "accept",
         function()
           if markdown_text() then
             return vim.api.nvim_replace_termcodes("<Cmd>InsertNewBullet<CR>", true, false, true)
