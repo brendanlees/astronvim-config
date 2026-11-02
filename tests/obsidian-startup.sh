@@ -10,6 +10,7 @@ export OBSIDIAN_TEST_ROOT="$repo_root" OBSIDIAN_TEST_TMP="$tmpdir"
 export OBSIDIAN_TEST_LAZY="$plugin_root/lazy.nvim"
 export OBSIDIAN_TEST_PLUGIN="$plugin_root/obsidian.nvim"
 export OBSIDIAN_TEST_LSPCONFIG="$plugin_root/nvim-lspconfig"
+export OBSIDIAN_TEST_SITE="${XDG_DATA_HOME:-$HOME/.local/share}/nvim/site"
 export OBSIDIAN_TEST_OXIDE_BIN=${MARKDOWN_OXIDE_BIN:-"${XDG_DATA_HOME:-$HOME/.local/share}/nvim/mason/bin/markdown-oxide"}
 export HOME="$tmpdir/home with spaces"
 export XDG_CONFIG_HOME="$tmpdir/config" XDG_DATA_HOME="$tmpdir/data"
@@ -24,6 +25,7 @@ vim.opt.rtp:prepend(vim.env.OBSIDIAN_TEST_ROOT)
 vim.opt.rtp:prepend(vim.env.OBSIDIAN_TEST_LAZY)
 vim.opt.swapfile = false
 vim.g.maplocalleader = ","
+require("user.markdown.folding").setup()
 local errors = {}
 vim.notify = function(message, level)
   if level == vim.log.levels.ERROR then errors[#errors + 1] = tostring(message) end
@@ -102,6 +104,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
         for _, key in ipairs { "d", "w", "e" } do
           assert(vim.fn.maparg(",." .. key, "n") ~= "", "periodic search mapping missing: " .. key)
         end
+        if vim.env.OBSIDIAN_TEST_FOLDING == "1" then
+          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-folding.lua")
+        end
         if vim.env.OBSIDIAN_TEST_COMPLETION == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-completion.lua")
         end
@@ -162,6 +167,7 @@ OBSIDIAN_TEST_AUTOSAVE=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_BOOKMARKS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_HIGHLIGHTS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_PERIODIC_SEARCH=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
+OBSIDIAN_TEST_FOLDING=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 
 if [[ -x "$OBSIDIAN_TEST_OXIDE_BIN" ]]; then
   # Include stale core settings to ensure the vault override takes precedence.

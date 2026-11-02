@@ -11,6 +11,7 @@ return {
     },
     init = function()
       require("user.markdown.appearance").setup()
+      require("user.markdown.folding").setup()
       vim.api.nvim_create_autocmd("FileType", {
         group = vim.api.nvim_create_augroup("markdown_otter", { clear = true }),
         pattern = "markdown",
@@ -82,6 +83,9 @@ return {
       table.insert(opts.keymap["<Tab>"], 1, function() return require("user.markdown.editing").tab(1) end)
       table.insert(opts.keymap["<S-Tab>"], 1, function() return require("user.markdown.editing").tab(-1) end)
       opts.keymap["<CR>"] = {
+        function(cmp)
+          if vim.bo.filetype == "markdown" and cmp.is_menu_visible() then return cmp.select_and_accept() end
+        end,
         "accept",
         function()
           if markdown_text() then

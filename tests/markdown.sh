@@ -16,7 +16,7 @@ mkdir -p "$HOME/.config/chezmoi-theme"
 printf '%s\n' 'return { colorscheme = "moonfly", palette = { surface_alt = "#323437" } }' \
   >"$HOME/.config/chezmoi-theme/active.lua"
 
-for test in markdown-file-link markdown-editing markdown-appearance markdown-highlights; do
+for test in markdown-file-link markdown-editing markdown-appearance markdown-highlights markdown-folding; do
   export NVIM_TEST_FILE="$repo_root/tests/$test.lua"
   nvim --headless -u NONE -i NONE \
     '+lua local ok, err = xpcall(function() dofile(vim.env.NVIM_TEST_FILE) end, debug.traceback); if not ok then print(err); vim.cmd("cquit 1") end' \

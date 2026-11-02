@@ -17,6 +17,14 @@ return {
   },
 
   {
+    "leath-dub/snipe.nvim",
+    opts = { sort = "last" },
+    keys = {
+      { "gb", function() require("snipe").open_buffer_menu() end, desc = "Open buffer menu" },
+    },
+  },
+
+  {
     "cbochs/grapple.nvim",
     dependencies = { { "nvim-tree/nvim-web-devicons", lazy = true } },
     event = { "BufReadPost", "BufNewFile" },

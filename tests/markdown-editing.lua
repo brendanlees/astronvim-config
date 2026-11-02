@@ -95,6 +95,31 @@ feed "A<CR>next child<Esc>"
 assert(vim.deep_equal(lines(), { "- parent", "    - child", "    - next child" }), vim.inspect(lines()))
 print "PASS: Enter outdents empty nested bullets, numbered items, and tasks one level; top-level Enter exits"
 
+-- A visible Markdown menu accepts its first item even without an explicit selection.
+local original_visible, original_select_accept = cmp.is_menu_visible, cmp.select_and_accept
+local selected_accept = 0
+cmp.is_menu_visible = function() return true end
+cmp.select_and_accept = function()
+  selected_accept = selected_accept + 1
+  return true
+end
+for _, content in ipairs { "[[Fri", "- [[Fri", "    - " } do
+  buffer { content }
+  feed "A<CR><Esc>"
+  assert(vim.deep_equal(lines(), { content }), "Enter inserted a newline instead of accepting completion")
+end
+assert(selected_accept == 3, "Markdown Enter did not use select_and_accept")
+buffer({ "local value" }, 1, "lua")
+feed "A<CR><Esc>"
+assert(selected_accept == 3 and #lines() == 2, "Markdown completion behavior leaked into source files")
+cmp.is_menu_visible = function() return false end
+buffer { "plain prose" }
+feed "A<CR>next line<Esc>"
+assert(vim.deep_equal(lines(), { "plain prose", "next line" }), "Enter without a menu stopped inserting newlines")
+assert(selected_accept == 3, "A hidden menu accepted a completion")
+cmp.is_menu_visible, cmp.select_and_accept = original_visible, original_select_accept
+print "PASS: visible Markdown completion takes Enter before newline/list handling; hidden menus and source files keep their behavior"
+
 buffer { "- first" }
 local original_accept = cmp.accept
 local accepted = 0
