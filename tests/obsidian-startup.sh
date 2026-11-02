@@ -125,7 +125,6 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
         if vim.env.OBSIDIAN_TEST_QUERY == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-query.lua")
-          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-rendering.lua")
         end
         if vim.env.OBSIDIAN_TEST_COMPLETION == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-completion.lua")

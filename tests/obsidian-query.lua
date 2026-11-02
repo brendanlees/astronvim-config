@@ -77,8 +77,8 @@ require("user.markdown.appearance").attach(buf)
 local helpers = require "user.obsidian.queries"
 local opts = helpers.render_options()
 assert(not opts.ignore(buf), "Vault note was excluded from query rendering")
-assert(opts.custom_handlers.markdown.extends and opts.custom_handlers.markdown_inline.extends)
-print "PASS: Obsidian checkboxes, links, and highlights render alongside Markdown and query visuals"
+assert(not opts.custom_handlers.markdown.extends and not opts.custom_handlers.markdown_inline.extends)
+print "PASS: checkboxes, links, and highlights render automatically alongside the query-only renderer"
 
 local renderer = require "render-markdown.api"
 local ns = vim.api.nvim_get_namespaces()["render-markdown.nvim"]

@@ -34,7 +34,7 @@ return {
     opts.cache = { enabled = true, backend = "json" }
     opts.callbacks = opts.callbacks or {}
     opts.callbacks.post_set_workspace = function(workspace)
-      -- Obsidian skips its UI when render-markdown is installed; we still need its inline styling.
+      -- Obsidian skips its UI when render-markdown is installed, even in query-only mode.
       require("obsidian.ui").setup(workspace, Obsidian.opts.ui)
     end
     opts.callbacks.enter_note = function()

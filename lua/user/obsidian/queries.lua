@@ -75,26 +75,11 @@ end
 
 function M.render_options()
   return {
-    -- Add selected block visuals without replacing Dataview or Obsidian's inline styling.
+    -- Only query output is new; Obsidian and our existing helpers own note styling.
     custom_handlers = {
-      markdown = { extends = true, parse = require("obsidian-query").parse },
-      -- The inline handler also identifies callout titles for the quote renderer.
-      markdown_inline = { extends = true, parse = require("obsidian-query.inline").parse },
+      markdown = { parse = require("obsidian-query").parse },
+      markdown_inline = { parse = require("obsidian-query.inline").parse },
     },
-    heading = { enabled = true },
-    dash = { enabled = true },
-    quote = { enabled = true }, -- Includes the built-in Obsidian and GitHub callouts.
-    -- Keep cells on their source rows so Obsidian can still decorate links and highlights.
-    pipe_table = { enabled = true, wrap = false },
-    bullet = { enabled = false },
-    checkbox = { enabled = false },
-    code = { enabled = false },
-    document = { enabled = false },
-    indent = { enabled = false },
-    inline_highlight = { enabled = false },
-    link = { enabled = false },
-    paragraph = { enabled = false },
-    sign = { enabled = false },
     -- Run on cursor-only redraws too, so entering any part of a block reveals all its source.
     on = { render = render_source, clear = clear_source },
     html = { enabled = false },
