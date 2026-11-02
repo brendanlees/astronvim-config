@@ -32,6 +32,8 @@ return {
     opts.ui.hl_groups.ObsidianHighlightText = require("user.obsidian.highlights").style
     opts.legacy_commands = false
     opts.cache = { enabled = true, backend = "json" }
+    local metadata = require "user.obsidian.metadata"
+    opts.frontmatter = { enabled = metadata.enabled, func = metadata.frontmatter, sort = metadata.order }
     opts.callbacks = opts.callbacks or {}
     opts.callbacks.post_set_workspace = function(workspace)
       -- Obsidian skips its UI when render-markdown is installed, even in query-only mode.
