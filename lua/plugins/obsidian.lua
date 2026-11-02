@@ -7,6 +7,7 @@ return {
   -- Keep the custom note helpers on the plugin API they were tested with.
   commit = "15af492b64f4677959fe95008f1d5b782fe1f86a",
   cmd = "Obsidian",
+  dependencies = { "dpezto/obsidian-query.nvim" },
   event = { "BufReadPre " .. markdown, "BufNewFile " .. markdown },
 
   init = function()
@@ -32,12 +33,17 @@ return {
     opts.legacy_commands = false
     opts.cache = { enabled = true, backend = "json" }
     opts.callbacks = opts.callbacks or {}
+    opts.callbacks.post_set_workspace = function(workspace)
+      -- Obsidian skips its UI when render-markdown is installed; we still need its inline styling.
+      require("obsidian.ui").setup(workspace, Obsidian.opts.ui)
+    end
     opts.callbacks.enter_note = function()
       require("user.obsidian.periodic").attach()
       require("user.obsidian.templates").attach()
       require("user.obsidian.search").attach()
       require("user.obsidian.bookmarks").attach()
       require("user.obsidian.highlights").attach()
+      require("user.obsidian.queries").attach()
     end
     opts.callbacks.create_note = function(note)
       note.template = note.template or require("user.obsidian.periodic").template_for_note(note)

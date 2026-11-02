@@ -23,12 +23,16 @@ printf '# Daily-note regression fixture\n' >"$vault/system/templates/nvim/daily.
 cat >"$tmpdir/init.lua" <<'LUA'
 vim.opt.rtp:prepend(vim.env.OBSIDIAN_TEST_ROOT)
 vim.opt.rtp:prepend(vim.env.OBSIDIAN_TEST_LAZY)
+vim.opt.rtp:append(vim.env.OBSIDIAN_TEST_SITE)
 vim.opt.swapfile = false
 vim.g.maplocalleader = ","
 require("user.markdown.folding").setup()
 local errors = {}
 vim.notify = function(message, level)
-  if level == vim.log.levels.ERROR then errors[#errors + 1] = tostring(message) end
+  if level == vim.log.levels.ERROR then
+    errors[#errors + 1] = tostring(message)
+    io.stderr:write(tostring(message) .. "\n")
+  end
 end
 local trial = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/markdown-oxide.lua")[2]
 trial.init()
@@ -41,10 +45,21 @@ if vim.env.OBSIDIAN_TEST_COMPLETION == "1" then
 end
 local spec = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/obsidian.lua")
 spec.dir = vim.env.OBSIDIAN_TEST_PLUGIN
+local plugins = vim.fs.dirname(vim.env.OBSIDIAN_TEST_PLUGIN)
+local queries = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/obsidian-query.lua")
+queries.dir = plugins .. "/obsidian-query.nvim"
+queries.dependencies[1].dir = plugins .. "/render-markdown.nvim"
+local render_options = queries.dependencies[1].opts
+queries.dependencies[1].opts = function()
+  local opts = render_options()
+  -- Tests send consecutive synthetic events faster than an interactive session.
+  opts.debounce = 0
+  return opts
+end
 -- Interactive startup defers :Lazy until VeryLazy; headless startup does not.
 -- Exercise that registration path without requiring a display server.
 require("lazy.core.config").headless = function() return false end
-require("lazy").setup({ spec }, {
+require("lazy").setup({ spec, queries }, {
   root = vim.env.OBSIDIAN_TEST_TMP .. "/plugins",
   lockfile = vim.env.OBSIDIAN_TEST_TMP .. "/lazy-lock.json",
   install = { missing = false },
@@ -89,14 +104,15 @@ vim.api.nvim_create_autocmd("VimEnter", {
           vim.api.nvim_win_set_cursor(0, { vim.api.nvim_buf_line_count(0), 0 })
           vim.fn.maparg(",//", "n", false, true).callback()
           assert(vim.api.nvim_get_current_line() == "==Highlight integration check==")
-          require("obsidian.ui").update(0)
-          local found = false
-          for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(
-            0, vim.api.nvim_get_namespaces().ObsidianUI, 0, -1, { details = true }
-          )) do
-            if mark[4].hl_group == "ObsidianHighlightText" then found = true end
-          end
-          assert(found, "Obsidian did not render the highlighted passage")
+          vim.api.nvim_exec_autocmds("TextChanged", { buffer = 0 })
+          assert(vim.wait(2000, function()
+            local ns = vim.api.nvim_get_namespaces().ObsidianUI
+            if not ns then return false end
+            for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(0, ns, 0, -1, { details = true })) do
+              if mark[4].hl_group == "ObsidianHighlightText" then return true end
+            end
+            return false
+          end), "Obsidian did not automatically render the highlighted passage")
           vim.cmd.colorscheme "habamax"
           hl = vim.api.nvim_get_hl(0, { name = "ObsidianHighlightText", link = false })
           assert(hl.fg == 0xffffff and hl.bg == 0x806600, "theme change replaced highlight colours")
@@ -106,6 +122,10 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
         if vim.env.OBSIDIAN_TEST_FOLDING == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-folding.lua")
+        end
+        if vim.env.OBSIDIAN_TEST_QUERY == "1" then
+          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-query.lua")
+          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-rendering.lua")
         end
         if vim.env.OBSIDIAN_TEST_COMPLETION == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-completion.lua")
@@ -169,6 +189,7 @@ OBSIDIAN_TEST_BOOKMARKS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_HIGHLIGHTS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_PERIODIC_SEARCH=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_FOLDING=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
+OBSIDIAN_TEST_QUERY=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 
 if [[ -x "$OBSIDIAN_TEST_OXIDE_BIN" ]]; then
   # Include stale core settings to ensure the vault override takes precedence.
