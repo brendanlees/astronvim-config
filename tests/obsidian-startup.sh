@@ -120,6 +120,9 @@ vim.api.nvim_create_autocmd("VimEnter", {
         for _, key in ipairs { "d", "w", "e" } do
           assert(vim.fn.maparg(",." .. key, "n") ~= "", "periodic search mapping missing: " .. key)
         end
+        if vim.env.OBSIDIAN_TEST_METADATA == "1" then
+          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-metadata.lua")
+        end
         if vim.env.OBSIDIAN_TEST_FOLDING == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-folding.lua")
         end
@@ -184,6 +187,7 @@ cmp "$tmpdir/expected.md" "$note"
 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 cmp "$tmpdir/expected.md" "$note"
 
+OBSIDIAN_TEST_METADATA=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_AUTOSAVE=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_BOOKMARKS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
 OBSIDIAN_TEST_HIGHLIGHTS=1 nvim --headless -i NONE -u "$tmpdir/init.lua" "$note"
