@@ -34,7 +34,24 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
-      picker = { enabled = false },
+      picker = {
+        enabled = false,
+        win = {
+          -- Keep preview scrolling clear of the tmux/Herdr Ctrl-b prefix.
+          input = {
+            keys = {
+              ["<c-d>"] = { "preview_scroll_down", mode = { "i", "n" } },
+              ["<c-u>"] = { "preview_scroll_up", mode = { "i", "n" } },
+            },
+          },
+          list = {
+            keys = {
+              ["<c-d>"] = "preview_scroll_down",
+              ["<c-u>"] = "preview_scroll_up",
+            },
+          },
+        },
+      },
       dashboard = {
         enabled = false,
         preset = {
