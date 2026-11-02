@@ -112,6 +112,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
         end
         if vim.env.OBSIDIAN_TEST_PERIODIC_SEARCH == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-periodic-search.lua")
+          dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-periodic-creation.lua")
         end
         if vim.env.OBSIDIAN_TEST_BOOKMARKS == "1" then
           dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/tests/obsidian-bookmarks.lua")
