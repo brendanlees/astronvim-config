@@ -52,30 +52,15 @@ return {
           },
         },
       },
-      dashboard = {
-        enabled = false,
-        preset = {
-          header = table.concat({
-            " █████  ███████ ████████ ██████   ██████ ",
-            "██   ██ ██         ██    ██   ██ ██    ██",
-            "███████ ███████    ██    ██████  ██    ██",
-            "██   ██      ██    ██    ██   ██ ██    ██",
-            "██   ██ ███████    ██    ██   ██  ██████ ",
-            "",
-            "███    ██ ██    ██ ██ ███    ███",
-            "████   ██ ██    ██ ██ ████  ████",
-            "██ ██  ██ ██    ██ ██ ██ ████ ██",
-            "██  ██ ██  ██  ██  ██ ██  ██  ██",
-            "██   ████   ████   ██ ██      ██",
-          }, "\n"),
-        },
-      },
+      dashboard = { enabled = false },
     },
   },
 
   { "folke/which-key.nvim", enabled = false },
 
   { "akinsho/toggleterm.nvim", enabled = false },
+
+  { "stevearc/resession.nvim", enabled = false },
 
   {
     "rebelot/heirline.nvim",

@@ -14,16 +14,13 @@ return {
   { import = "astrocommunity.pack.docker" },
   { import = "astrocommunity.pack.html-css" },
   { import = "astrocommunity.pack.lua" },
-  { import = "astrocommunity.pack.markdown" },
   { import = "astrocommunity.pack.php" },
   { import = "astrocommunity.pack.prettier" },
-  { import = "astrocommunity.pack.python" },
+  -- { import = "astrocommunity.pack.python" },
   { import = "astrocommunity.pack.toml" },
   { import = "astrocommunity.pack.yaml" },
   -- extensions
   { import = "astrocommunity.split-and-window.colorful-winsep-nvim" },
-  -- file explorer trial: keep Neo-tree available while evaluating Oil
-  { import = "astrocommunity.file-explorer.oil-nvim" },
   --- tmux
   { import = "astrocommunity.terminal-integration.vim-tmux-navigator" },
   -- theme — colorscheme is selected dynamically in plugins/astroui.lua from
