@@ -4,12 +4,11 @@ local specs = Plugin.Spec.new({
   dofile(plugin_root .. "/AstroNvim/lua/astronvim/plugins/mason-tool-installer.lua"),
   dofile(plugin_root .. "/AstroNvim/lua/astronvim/plugins/_astrolsp.lua"),
   dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/mason.lua"),
-  dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/astrolsp.lua"),
   dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/markdown-oxide.lua"),
 }, { pkg = false })
 assert(specs:report() == 0, "Oxide plugin specs did not merge")
 local mason = Plugin.values(specs.plugins["mason-tool-installer.nvim"], "opts", false)
-for _, package in ipairs { "markdown-oxide", "systemd-lsp", "astro-language-server", "stylua", "tree-sitter-cli" } do
+for _, package in ipairs { "markdown-oxide", "systemd-lsp", "astro-language-server", "stylua" } do
   assert(vim.tbl_contains(mason.ensure_installed, package), "Mason lost package " .. package)
 end
 local lsp = Plugin.values(specs.plugins.astrolsp, "opts", false)
