@@ -60,6 +60,8 @@ return {
 
   { "akinsho/toggleterm.nvim", enabled = false },
 
+  { "stevearc/resession.nvim", enabled = false },
+
   {
     "rebelot/heirline.nvim",
     opts = function(_, opts)

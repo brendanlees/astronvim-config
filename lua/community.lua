@@ -16,7 +16,7 @@ return {
   { import = "astrocommunity.pack.lua" },
   { import = "astrocommunity.pack.php" },
   { import = "astrocommunity.pack.prettier" },
-  { import = "astrocommunity.pack.python" },
+  -- { import = "astrocommunity.pack.python" },
   { import = "astrocommunity.pack.toml" },
   { import = "astrocommunity.pack.yaml" },
   -- extensions
