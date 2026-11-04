@@ -3,8 +3,8 @@ local Plugin = require "lazy.core.plugin"
 local specs = Plugin.Spec.new({
   dofile(plugin_root .. "/AstroNvim/lua/astronvim/plugins/mason-tool-installer.lua"),
   dofile(plugin_root .. "/AstroNvim/lua/astronvim/plugins/_astrolsp.lua"),
-  dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/mason.lua"),
-  dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/markdown-oxide.lua"),
+  dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/mason-tool-installer.lua"),
+  dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/astrolsp.lua"),
 }, { pkg = false })
 assert(specs:report() == 0, "Oxide plugin specs did not merge")
 local mason = Plugin.values(specs.plugins["mason-tool-installer.nvim"], "opts", false)
@@ -139,7 +139,7 @@ active "obsidian-ls"
 local outside = vim.api.nvim_create_buf(true, false)
 vim.api.nvim_buf_set_name(outside, vim.env.HOME .. "/outside.md")
 local root_dir
-local config = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/markdown-oxide.lua")[2].opts.config.markdown_oxide
+local config = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/astrolsp.lua").opts.config.markdown_oxide
 config.root_dir(outside, function(dir) root_dir = dir end)
 assert(root_dir == nil, "Oxide escaped the vault")
 vim.bo[buf].modified = false

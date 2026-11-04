@@ -49,6 +49,7 @@ return {
       },
     },
     options = {
+      g = { ["chezmoi#source_dir_path"] = require("user.chezmoi").source_dir() },
       opt = { -- vim.opt.<key>
         wrap = true, -- visually wrap long lines to the current window width
         showtabline = 0, -- disable the bufferline

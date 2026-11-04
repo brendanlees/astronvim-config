@@ -36,6 +36,26 @@ local function item(line)
   return { indent = indent, text = text or body, state = state }
 end
 
+function M.cycle_checkbox()
+  if not M.is_text() then return false end
+  local line = vim.api.nvim_get_current_line()
+  local bullet = item(line)
+  if not bullet or not bullet.state then return false end
+  local states = vim.split(require("bullets.config").options.checkbox_markers, "")
+  local index = vim.fn.index(states, bullet.state)
+  local next_state = states[(index + 1) % #states + 1]
+  local row = vim.api.nvim_win_get_cursor(0)[1]
+  local start = line:find("[", 1, true)
+  vim.api.nvim_buf_set_text(0, row - 1, start, row - 1, start + #bullet.state, { next_state })
+  return true
+end
+
+function M.enter()
+  if M.cycle_checkbox() then return end
+  local folding = require "user.markdown.folding"
+  if folding.is_heading(vim.api.nvim_win_get_cursor(0)[1]) then folding.toggle_fold() end
+end
+
 -- Four-space levels also nest correctly under numbered markers. Do not change
 -- shiftwidth: the note can contain code blocks with their own indentation needs.
 function M.indent(direction)
@@ -117,6 +137,57 @@ function M.menu()
     end
     M.convert(buf, first, last, choice.kind)
   end)
+end
+
+function M.setup_bullets(opts)
+  require("bullets").setup(opts)
+  local function attach(buf)
+    vim.keymap.set(
+      { "n", "x" },
+      "<LocalLeader>L",
+      function() require("user.markdown.editing").menu() end,
+      { buffer = buf, desc = "Change Markdown list type" }
+    )
+    for key, direction in pairs { ["<Tab>"] = 1, ["<S-Tab>"] = -1 } do
+      vim.keymap.set(
+        "n",
+        key,
+        function()
+          return require("user.markdown.editing").tab(direction, true)
+            or vim.api.nvim_replace_termcodes(key, true, false, true)
+        end,
+        {
+          buffer = buf,
+          expr = true,
+          replace_keycodes = false,
+          desc = direction > 0 and "Indent Markdown list item" or "Outdent Markdown list item",
+        }
+      )
+    end
+    vim.keymap.set(
+      "n",
+      "o",
+      function() return M.is_text() and "<Cmd>InsertNewBullet<CR>" or "o" end,
+      { buffer = buf, expr = true, desc = "Open line and continue Markdown list" }
+    )
+  end
+  vim.api.nvim_create_autocmd("FileType", {
+    group = vim.api.nvim_create_augroup("markdown_bullets", { clear = true }),
+    pattern = "markdown",
+    callback = function(ev) attach(ev.buf) end,
+  })
+  if vim.bo.filetype == "markdown" then attach(0) end
+end
+
+function M.completion_options(opts)
+  table.insert(opts.keymap["<Tab>"], 1, function() return require("user.markdown.editing").tab(1) end)
+  table.insert(opts.keymap["<S-Tab>"], 1, function() return require("user.markdown.editing").tab(-1) end)
+  opts.keymap["<CR>"] = {
+    function()
+      if M.is_text() then return vim.api.nvim_replace_termcodes("<Cmd>InsertNewBullet<CR>", true, false, true) end
+    end,
+    "fallback",
+  }
 end
 
 return M

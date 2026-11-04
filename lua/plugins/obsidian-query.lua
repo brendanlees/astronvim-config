@@ -10,10 +10,6 @@ return {
     require("obsidian-query").setup(opts)
   end,
   dependencies = {
-    {
-      "MeanderingProgrammer/render-markdown.nvim",
-      commit = "8e8795368391036643b622875a6da6a51bcd33f4",
-      opts = function() return require("user.obsidian.queries").render_options() end,
-    },
+    "MeanderingProgrammer/render-markdown.nvim",
   },
 }

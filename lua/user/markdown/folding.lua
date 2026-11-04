@@ -19,6 +19,13 @@ local function headings()
   return result
 end
 
+function M.is_heading(line)
+  for _, heading in ipairs(headings()) do
+    if heading.line == line then return true end
+  end
+  return false
+end
+
 local function close_heading(line)
   if vim.fn.foldclosed(line) ~= -1 or vim.fn.foldlevel(line) == 0 then return end
   vim.api.nvim_win_set_cursor(0, { line, 0 })
@@ -89,7 +96,7 @@ function M.attach(buf)
   for key, mapping in pairs {
     zu = { M.toggle_all, "Toggle all Markdown folds" },
     zi = { M.toggle_section, "Toggle current Markdown section" },
-    ["<CR>"] = { M.toggle_fold, "Toggle fold under cursor" },
+    ["<CR>"] = { function() require("user.markdown.editing").enter() end, "Cycle checkbox / toggle heading fold" },
   } do
     vim.keymap.set("n", key, mapping[1], { buffer = buf, desc = mapping[2] })
   end

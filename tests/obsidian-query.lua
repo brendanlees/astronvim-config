@@ -173,12 +173,21 @@ local picked, folded = 0, 0
 query.open_picker = function() picked = picked + 1 end
 folding.toggle_fold = function() folded = folded + 1 end
 local enter = vim.fn.maparg("<CR>", "n", false, true)
-assert(enter.desc == "Query results / toggle fold")
+assert(enter.desc == "Query results / checkbox / heading fold")
 move(6) -- The collapsed Dataview summary sits on the closing fence.
 enter.callback()
 move(2)
 enter.callback()
-assert(picked == 1 and folded == 1, "Enter did not preserve query and fold actions")
+assert(folded == 0, "Enter on prose should not fold its containing heading")
+move(1)
+enter.callback()
+assert(picked == 1 and folded == 1, "Enter did not preserve query and heading-fold actions")
+move(34)
+for _, state in ipairs { "~", "!", ">", "x", " " } do
+  enter.callback()
+  assert(vim.api.nvim_get_current_line() == "- [" .. state .. "] Render this checkbox")
+end
+assert(picked == 1 and folded == 1, "Checklist Enter invoked a query or fold action")
 query.open_picker, folding.toggle_fold = old_picker, old_fold
 
 -- UI updates must come from normal editor events, not explicit obsidian.ui.update calls.
@@ -295,7 +304,7 @@ vim.fn.writefile({ "# Outside", "```dataviewjs", "keep visible", "```" }, outsid
 vim.cmd.edit(vim.fn.fnameescape(outside))
 assert(opts.ignore(vim.api.nvim_get_current_buf()), "Non-vault Markdown was included")
 assert(not require("render-markdown.core.manager").attached(vim.api.nvim_get_current_buf()))
-assert(vim.fn.maparg("<CR>", "n", false, true).desc == "Toggle fold under cursor")
+assert(vim.fn.maparg("<CR>", "n", false, true).desc == "Cycle checkbox / toggle heading fold")
 local preview = vim.api.nvim_create_buf(false, true)
 vim.api.nvim_buf_set_name(preview, vault .. "/preview.md")
 assert(opts.ignore(preview), "Preview buffers were included")

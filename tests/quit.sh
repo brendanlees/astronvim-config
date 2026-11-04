@@ -6,6 +6,7 @@ NVIM_TEST_ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 
 nvim --headless -u NONE -i NONE \
   '+lua local ok, err = xpcall(function()
+    vim.opt.rtp:prepend(vim.env.NVIM_TEST_ROOT)
     local spec = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/astrocore.lua")
     local mapping = spec.opts.mappings.n["<C-Q>"]
     assert(mapping and mapping[1] == "<Cmd>confirm q<CR>", "Ctrl-Q must confirm rather than force quit")

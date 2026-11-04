@@ -7,8 +7,9 @@ vim.g.maplocalleader = ","
 vim.o.hidden = true
 vim.o.swapfile = false
 vim.cmd "filetype plugin on"
-local specs = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/markdown.lua")
-local otter_spec, bullets_spec, blink_spec = specs[1], specs[2], specs[3]
+local otter_spec = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/otter.lua")
+local bullets_spec = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/bullets.lua")
+local blink_spec = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/blink.lua")
 bullets_spec.config(nil, bullets_spec.opts)
 local cmp = require "blink.cmp"
 local blink_opts = {

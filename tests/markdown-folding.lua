@@ -1,6 +1,6 @@
 vim.opt.rtp:append(vim.env.NVIM_TEST_ROOT)
 vim.opt.rtp:append(vim.env.NVIM_TEST_SITE)
-for _, name in ipairs { "astrocore", "astroui", "nvim-treesitter" } do
+for _, name in ipairs { "astrocore", "astroui", "nvim-treesitter", "bullets.nvim" } do
   vim.opt.rtp:append(vim.env.NVIM_TEST_PLUGINS .. "/" .. name)
 end
 vim.opt.rtp:append(vim.env.NVIM_TEST_PLUGINS .. "/nvim-treesitter/runtime")
@@ -19,8 +19,9 @@ end
 local persistent = core_opts.autocmds.persistent_astroui_foldexpr[1]
 vim.api.nvim_create_autocmd(persistent.event, { callback = persistent.callback })
 -- Exercise the actual plugin startup hook, without activating unrelated language servers.
-local otter = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/markdown.lua")[1]
+local otter = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/otter.lua")
 otter.init()
+require("bullets").setup(dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/bullets.lua").opts)
 vim.api.nvim_clear_autocmds { group = "markdown_otter" }
 
 local function feed(keys) vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), "xt", false) end
@@ -194,6 +195,34 @@ cursor "## Fake code"
 feed "zi"
 assert(closed "# Title", "zi treated code-block hashes as a heading")
 print "PASS: YAML, code fences, blockquotes, and list contents are not mistaken for note headings"
+
+buffer { "# Tasks", "", "- [ ] todo", "", "## Other", "body" }
+vim.api.nvim_win_set_cursor(0, { 3, 7 })
+for _, state in ipairs { "~", "!", ">", "x", " " } do
+  feed "<CR>"
+  assert(vim.api.nvim_get_current_line() == "- [" .. state .. "] todo", "Enter did not cycle checkbox states")
+  assert(vim.fn.foldclosed(1) == -1 and vim.fn.foldclosed(5) == -1, "Checkbox Enter folded a heading")
+  assert(vim.api.nvim_win_get_cursor(0)[2] == 7, "Checkbox cycling moved the cursor")
+end
+vim.api.nvim_win_set_cursor(0, { 1, 0 })
+feed "<CR>"
+assert(vim.fn.foldclosed(1) == 1, "Heading Enter stopped folding")
+feed "<CR>"
+assert(vim.fn.foldclosed(1) == -1)
+
+for _, fixture in ipairs {
+  { lines = { "# Heading", "ordinary prose", "", "- ordinary list" }, row = 2 },
+  { lines = { "# Heading", "ordinary prose", "", "- ordinary list" }, row = 4 },
+  { lines = { "```markdown", "- [ ] code", "```" }, row = 2 },
+  { lines = { "---", "tasks:", "  - [ ] yaml", "---" }, row = 3 },
+} do
+  buffer(fixture.lines)
+  vim.api.nvim_win_set_cursor(0, { fixture.row, 0 })
+  feed "<CR>"
+  assert(vim.deep_equal(vim.api.nvim_buf_get_lines(0, 0, -1, false), fixture.lines), "Enter changed prose/code/YAML")
+  assert(vim.fn.foldclosed(1) == -1, "Enter folded a containing section instead of the heading under the cursor")
+end
+print "PASS: Enter cycles checkbox states without folding; only real headings fold; prose/code/YAML stay unchanged"
 
 buffer { "plain prose", "another line" }
 local before = vim.api.nvim_win_get_cursor(0)

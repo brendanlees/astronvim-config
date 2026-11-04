@@ -33,20 +33,6 @@ return {
   { import = "astrocommunity.colorscheme.rose-pine" },
   { import = "astrocommunity.colorscheme.github-nvim-theme" },
   { import = "astrocommunity.colorscheme.vim-nightfly-colors" },
-  {
-    "tinted-theming/tinted-vim",
-    lazy = true,
-    colors = {
-      "base24-flatland",
-      "base24-japanesque",
-      "base24-sleepy-hollow",
-      "base24-twilight",
-      "base24-wryan",
-    },
-  },
-  { "fcpg/vim-fahrenheit", lazy = true, colors = { "fahrenheit" } },
-  { "vossenwout/guts.nvim", lazy = true },
-  { "metalelf0/black-metal-theme-neovim", lazy = true },
   { import = "astrocommunity.colorscheme.vim-moonfly-colors" },
   { import = "astrocommunity.recipes.vscode-icons" },
   { import = "astrocommunity.recipes.disable-borders" },
@@ -54,6 +40,4 @@ return {
   { import = "astrocommunity.color.nvim-highlight-colors" },
   -- utility
   { import = "astrocommunity.utility.noice-nvim" },
-  -- motion
-  { import = "astrocommunity.scrolling.mini-animate" },
 }

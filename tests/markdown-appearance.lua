@@ -107,10 +107,7 @@ vim.opt.rtp:append(vim.env.NVIM_TEST_PLUGINS .. "/indent-blankline.nvim")
 vim.opt.rtp:append(vim.env.NVIM_TEST_PLUGINS .. "/indent-rainbowline.nvim")
 local ibl = require "ibl"
 ibl.setup(require("indent-rainbowline").make_opts { scope = { enabled = false } })
-local specs = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/markdown.lua")
-for _, spec in ipairs(specs) do
-  if spec[1] == "lukas-reineke/indent-blankline.nvim" then spec.opts() end
-end
+dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/indent-blankline.lua").opts()
 vim.api.nvim_buf_set_lines(0, 0, -1, false, {
   "    prose",
   "```lua",
@@ -147,13 +144,18 @@ end
 local function rainbow_bg() return vim.api.nvim_get_hl(0, { name = "MarkdownRainbowindent1", link = false }).bg end
 ibl.refresh(0)
 local rendered = {}
-for _, mark in ipairs(vim.api.nvim_buf_get_extmarks(0, vim.api.nvim_get_namespaces().indent_blankline, 0, -1, {
-  details = true,
-})) do
+for _, mark in
+  ipairs(vim.api.nvim_buf_get_extmarks(0, vim.api.nvim_get_namespaces().indent_blankline, 0, -1, {
+    details = true,
+  }))
+do
   rendered[mark[2]] = mark[4].virt_text
 end
-assert(rendered[3] and vim.inspect(rendered[3]):find("MarkdownRainbowindent2"), "Nested rainbow guides were not rendered")
-assert(rendered[0] and not vim.inspect(rendered[0]):find("MarkdownRainbow"), "Rendered prose guides changed")
+assert(
+  rendered[3] and vim.inspect(rendered[3]):find "MarkdownRainbowindent2",
+  "Nested rainbow guides were not rendered"
+)
+assert(rendered[0] and not vim.inspect(rendered[0]):find "MarkdownRainbow", "Rendered prose guides changed")
 local before = rainbow_bg()
 assert(before ~= changed.bg, "Rainbow colour must contrast with the code background")
 vim.cmd.colorscheme "habamax"

@@ -14,18 +14,9 @@ cat >"$tmpdir/check.lua" <<'LUA'
 vim.opt.rtp:prepend(vim.env.NVIM_TEST_PLUGINS .. "/heirline.nvim")
 vim.o.termguicolors = true
 local heirline = require "heirline"
-local spec
-for _, plugin in ipairs(dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/ui.lua")) do
-  if plugin[1] == "rebelot/heirline.nvim" then spec = plugin end
-end
-assert(spec, "Heirline configuration is missing")
+local spec = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/heirline.lua")
+assert(spec[1] == "rebelot/heirline.nvim", "Heirline configuration is missing")
 
--- Control tag state without reading or writing the user's Grapple data.
-local tag = false
-package.loaded.grapple = {
-  exists = function() return tag ~= false end,
-  name_or_index = function() return tag end,
-}
 for _, colors in ipairs({
   { fg = "#c6c6c6", bg = "#080808" },
   { fg = "#202020", bg = "#ffffff" },
@@ -33,6 +24,7 @@ for _, colors in ipairs({
   heirline.clear_colors()
   local opts = spec.opts(nil, {
     opts = { colors = colors },
+    winbar = { provider = "hidden" },
     statusline = {
       hl = { fg = "fg", bg = "bg" },
       { provider = "mode " },
@@ -40,20 +32,18 @@ for _, colors in ipairs({
       { provider = "file" },
     },
   })
+  assert(opts.winbar == nil, "Winbar should remain disabled")
+  assert(#opts.statusline == 3, "Statusline should not contain the removed Grapple widget")
   heirline.setup(opts)
-  for _, value in ipairs({ false, 1, "Pinned note" }) do
-    tag = value
-    vim.v.errmsg = ""
-    local rendered = vim.api.nvim_eval_statusline(vim.o.statusline, { maxwidth = 160 })
-    local expected = "mode branch file"
-    if tag ~= false then expected = expected .. "  󰛢 " .. tag .. " " end
-    assert(rendered.str == expected, vim.inspect(rendered))
-    -- Lua statusline failures can return "0" instead of throwing to this caller.
-    assert(vim.v.errmsg == "", vim.v.errmsg)
-    assert(vim.api.nvim_exec2("messages", { output = true }).output == "", "Statusline emitted an error")
-  end
+  vim.v.errmsg = ""
+  local rendered = vim.api.nvim_eval_statusline(vim.o.statusline, { maxwidth = 160 })
+  assert(rendered.str == "mode branch file", vim.inspect(rendered))
+  -- Lua statusline failures can return "0" instead of throwing to this caller.
+  assert(vim.v.errmsg == "", vim.v.errmsg)
+  assert(vim.api.nvim_exec2("messages", { output = true }).output == "", "Statusline emitted an error")
 end
-print("Untagged, numbered and named Grapple statuslines render with dark and light colors")
+assert(not package.loaded.grapple, "Statusline should not load Grapple")
+print("PASS: statusline renders in dark and light colors without Grapple; winbar stays disabled")
 LUA
 export NVIM_TEST_FILE="$tmpdir/check.lua"
 nvim --headless -u NONE -i NONE \

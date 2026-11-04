@@ -98,9 +98,9 @@ function M.attach()
     if query.cursor_in_query() then
       query.open_picker()
     else
-      require("user.markdown.folding").toggle_fold()
+      require("user.markdown.editing").enter()
     end
-  end, { buffer = true, desc = "Query results / toggle fold" })
+  end, { buffer = true, desc = "Query results / checkbox / heading fold" })
 end
 
 return M

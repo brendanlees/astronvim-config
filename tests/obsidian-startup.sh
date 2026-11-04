@@ -34,7 +34,7 @@ vim.notify = function(message, level)
     io.stderr:write(tostring(message) .. "\n")
   end
 end
-local trial = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/markdown-oxide.lua")[2]
+local trial = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/astrolsp.lua")
 trial.init()
 if vim.env.OBSIDIAN_TEST_COMPLETION == "1" then
   vim.opt.rtp:append(vim.env.OBSIDIAN_TEST_LSPCONFIG)
@@ -46,11 +46,14 @@ end
 local spec = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/obsidian.lua")
 spec.dir = vim.env.OBSIDIAN_TEST_PLUGIN
 local plugins = vim.fs.dirname(vim.env.OBSIDIAN_TEST_PLUGIN)
+local bullets = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/bullets.lua")
+bullets.dir = plugins .. "/bullets.nvim"
 local queries = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/obsidian-query.lua")
 queries.dir = plugins .. "/obsidian-query.nvim"
-queries.dependencies[1].dir = plugins .. "/render-markdown.nvim"
-local render_options = queries.dependencies[1].opts
-queries.dependencies[1].opts = function()
+local renderer = dofile(vim.env.OBSIDIAN_TEST_ROOT .. "/lua/plugins/render-markdown.lua")
+renderer.dir = plugins .. "/render-markdown.nvim"
+local render_options = renderer.opts
+renderer.opts = function()
   local opts = render_options()
   -- Tests send consecutive synthetic events faster than an interactive session.
   opts.debounce = 0
@@ -59,7 +62,11 @@ end
 -- Interactive startup defers :Lazy until VeryLazy; headless startup does not.
 -- Exercise that registration path without requiring a display server.
 require("lazy.core.config").headless = function() return false end
-require("lazy").setup({ spec, queries }, {
+local test_specs = { spec, queries, renderer }
+if vim.env.OBSIDIAN_TEST_FOLDING == "1" or vim.env.OBSIDIAN_TEST_QUERY == "1" then
+  test_specs[#test_specs + 1] = bullets
+end
+require("lazy").setup(test_specs, {
   root = vim.env.OBSIDIAN_TEST_TMP .. "/plugins",
   lockfile = vim.env.OBSIDIAN_TEST_TMP .. "/lazy-lock.json",
   install = { missing = false },
@@ -154,7 +161,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
           assert(vim.wait(10000, function()
             return vim.tbl_contains(vim.fn.readfile(expected), marker)
           end), "idle autosave did not reach disk after ten seconds")
-          assert(writes == 1 and not vim.bo.modified, "Obsidian write hooks did not complete")
+          assert(writes == 1 and not vim.bo.modified, "Obsidian write hooks did not complete: writes=" .. writes .. " modified=" .. tostring(vim.bo.modified))
           vim.api.nvim_buf_set_lines(0, -1, -1, false, { "Saved on leaving the note" })
           vim.api.nvim_exec_autocmds("FocusLost", { buffer = 0 })
           assert(vim.tbl_contains(vim.fn.readfile(expected), "Saved on leaving the note"))

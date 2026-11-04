@@ -12,5 +12,5 @@ export XDG_CONFIG_HOME="$tmpdir/config" XDG_DATA_HOME="$tmpdir/data"
 export XDG_STATE_HOME="$tmpdir/state" XDG_CACHE_HOME="$tmpdir/cache"
 
 nvim --headless -u NONE -i NONE \
-  '+lua local ok, err = xpcall(function() dofile(vim.env.NVIM_TEST_ROOT .. "/tests/snipe.lua") end, debug.traceback); if not ok then print(err); vim.cmd("cquit 1") end' \
+  '+lua local ok, err = xpcall(function() dofile(vim.env.NVIM_TEST_ROOT .. "/tests/buffers.lua") end, debug.traceback); if not ok then print(err); vim.cmd("cquit 1") end' \
   '+qa!'

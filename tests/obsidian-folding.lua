@@ -21,6 +21,8 @@ vim.fn.writefile({
   "",
   "## Beta",
   "body",
+  "",
+  "- [ ] todo",
 }, path)
 vim.cmd.edit(vim.fn.fnameescape(path))
 local buf = vim.api.nvim_get_current_buf()
@@ -67,6 +69,13 @@ assert(vim.fn.foldclosed(7) == 7)
 feed "<CR>"
 assert(vim.fn.foldclosed(7) == -1)
 assert(not vim.bo.modified, "Fold mappings modified a note")
+vim.api.nvim_win_set_cursor(0, { 16, 7 })
+for _, state in ipairs { "~", "!", ">", "x", " " } do
+  feed "<CR>"
+  assert(vim.api.nvim_get_current_line() == "- [" .. state .. "] todo", "Obsidian Enter did not cycle checkboxes")
+  all_open()
+end
+print "PASS: Obsidian Enter cycles checkbox states without folding the note"
 assert(vim.fn.maparg(",h", "n", false, true).desc == "Previous periodic note")
 assert(vim.fn.maparg(",.u", "n") ~= "", "Obsidian search mappings were lost")
 print "PASS: Markdown fold mappings work with AstroNvim's real Obsidian LSP provider and preserve note helpers"
