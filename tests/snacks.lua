@@ -24,53 +24,14 @@ require("lazy").setup({
 local snacks = require "snacks"
 local function feed(keys) vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(keys, true, false, true), "xt", false) end
 local opts = snacks.config
-assert(
-  opts.scroll.enabled and opts.scroll.animate.duration.total == 120,
-  "Smooth scrolling should use short animations"
-)
-assert(opts.scroll.animate_repeat.duration.total == 40, "Repeated scrolling should be faster")
+assert(opts.scroll.enabled == false, "Snacks smooth scrolling must stay disabled")
+assert(not snacks.scroll.enabled, "Snacks smooth scrolling must not start")
 assert(
   opts.image.enabled and opts.image.doc.enabled and opts.image.doc.float and not opts.image.doc.inline,
   "Document images should use cursor-line floats, not inline rendering"
 )
 assert(not opts.image.math.enabled, "Image support should not add automatic math rendering")
 assert(opts.dashboard.enabled and opts.lazygit.win.position == "float")
-
-local lines = {}
-for i = 1, 300 do
-  lines[i] = "-- line " .. i
-end
-vim.api.nvim_buf_set_lines(0, 0, -1, false, lines)
-vim.api.nvim_buf_set_name(0, vim.env.NVIM_TEST_TMP .. "/scroll.lua")
-vim.bo.modified = false
-assert(opts.scroll.filter(0), "File buffers should animate")
-vim.bo.buftype = "nofile"
-assert(not opts.scroll.filter(0), "Picker and other special buffers should not animate")
-vim.bo.buftype = ""
-vim.g.snacks_scroll = false
-assert(not opts.scroll.filter(0), "Global scroll opt-out must work")
-vim.g.snacks_scroll = nil
-local function reset()
-  vim.cmd "normal! ggzt"
-  vim.cmd.redraw()
-end
-snacks.scroll.disable()
-reset()
-feed "<C-d>"
-local expected = vim.fn.winsaveview()
-reset()
-snacks.scroll.enable()
-assert(snacks.scroll.enabled, "Smooth scrolling did not enable")
-feed "<C-d>"
-vim.cmd.redraw()
-assert(
-  vim.wait(1500, function()
-    local view = vim.fn.winsaveview()
-    return view.topline == expected.topline and view.lnum == expected.lnum
-  end, 10),
-  "Smooth scrolling did not finish at the normal scroll target"
-)
-snacks.scroll.disable()
 
 local project = vim.env.NVIM_TEST_TMP .. "/project"
 vim.fn.mkdir(project, "p")
@@ -241,4 +202,4 @@ local job = vim.b[terminal.buf].terminal_job_id
 assert(job and vim.fn.jobwait({ job }, 100)[1] == -1, "LazyGit exited instead of opening")
 vim.api.nvim_chan_send(job, "q")
 assert(vim.wait(3000, function() return vim.fn.jobwait({ job }, 0)[1] ~= -1 end, 10), "LazyGit did not quit")
-print "PASS: scrolling, faster theme-coloured rain/final frame/replay/quiet completion/cleanup/fallbacks, buffers, images, and LazyGit"
+print "PASS: smooth scrolling disabled, faster theme-coloured rain/final frame/replay/quiet completion/cleanup/fallbacks, buffers, images, and LazyGit"

@@ -52,13 +52,7 @@ return {
         },
       },
     },
-    scroll = {
-      enabled = true,
-      animate = { duration = { step = 8, total = 120 }, easing = "linear" },
-      animate_repeat = { duration = { step = 4, total = 40 }, easing = "linear" },
-      -- Animate file windows, not picker menus or terminals.
-      filter = require("user.snacks").scroll_filter,
-    },
+    scroll = { enabled = false },
     image = {
       enabled = true,
       doc = { enabled = true, inline = false, float = true },
