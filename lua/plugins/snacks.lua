@@ -40,8 +40,8 @@ return {
       win = {
         input = {
           keys = {
-            ["<c-l>"] = { "preview_scroll_up", mode = { "i", "n" } },
-            ["<c-;>"] = { "preview_scroll_down", mode = { "i", "n" } },
+            ["<c-;>"] = { "preview_scroll_up", mode = { "i", "n" } },
+            ["<c-l>"] = { "preview_scroll_down", mode = { "i", "n" } },
           },
         },
         list = {
