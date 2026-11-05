@@ -7,6 +7,21 @@ return {
     require("fff.download").download_or_build_binary()
   end,
   lazy = false, -- fff lazy-initializes itself
+  init = function()
+    vim.api.nvim_create_autocmd("User", {
+      group = vim.api.nvim_create_augroup("fff_picker_handoff", { clear = true }),
+      pattern = "FFFOpen",
+      desc = "Replace Snacks pickers when opening FFF",
+      callback = function()
+        local snacks = package.loaded.snacks
+        if not snacks then return end
+        -- Snacks ignores focus changes to floats, so explicitly dismiss it for FFF.
+        for _, picker in ipairs(snacks.picker.get()) do
+          picker:close()
+        end
+      end,
+    })
+  end,
   opts = {
     lazy_sync = true,
     layout = {

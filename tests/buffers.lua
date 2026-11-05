@@ -3,6 +3,9 @@ vim.go.loadplugins = true
 vim.opt.rtp:prepend(vim.env.NVIM_TEST_PLUGINS .. "/lazy.nvim")
 vim.o.swapfile = false
 vim.o.hidden = true
+vim.g.mapleader = " "
+vim.o.columns = 160
+vim.o.lines = 50
 local function spec(file, name)
   local plugin = dofile(vim.env.NVIM_TEST_ROOT .. "/lua/plugins/" .. file .. ".lua")
   assert(plugin[1] == name, "Missing plugin: " .. name)
@@ -10,6 +13,7 @@ local function spec(file, name)
 end
 require("lazy").setup({
   spec("snacks", "folke/snacks.nvim"),
+  spec("fff", "dmtrKovalenko/fff.nvim"),
 }, {
   root = vim.env.NVIM_TEST_PLUGINS,
   lockfile = vim.env.NVIM_TEST_TMP .. "/lazy-lock.json",
@@ -108,4 +112,58 @@ picker = assert(Snacks.picker.get()[1])
 assert(vim.wait(1000, function() return picker.list.win:valid() end, 10))
 feed "<Esc>"
 assert(picker.closed and vim.api.nvim_get_current_buf() == beta, "Escape should cancel without switching buffers")
-print "PASS: gb opens Snacks; Tab multi-selects; g visits without closing; d deletes one or many with save protection; Enter and Escape close"
+-- Exercise the actual shortcuts and floating windows, not mocked picker APIs.
+local project = vim.env.NVIM_TEST_TMP .. "/project"
+vim.fn.mkdir(project, "p")
+vim.fn.writefile({ "local needle = true" }, project .. "/needle.lua")
+vim.cmd.cd(project)
+local config = vim.fn.stdpath "config"
+vim.fn.mkdir(config, "p")
+vim.fn.writefile({ "-- config fixture" }, config .. "/init.lua")
+local fff = require "fff.picker_ui.picker_ui"
+local function snacks_windows(p)
+  local wins = {}
+  for _, win in pairs(p.layout.wins) do
+    if win.win then wins[#wins + 1] = win.win end
+  end
+  for _, win in ipairs(p.layout.box_wins) do
+    if win.win then wins[#wins + 1] = win.win end
+  end
+  return wins
+end
+local function closed(wins)
+  for _, win in ipairs(wins) do
+    if vim.api.nvim_win_is_valid(win) then return false end
+  end
+  return true
+end
+for _, keys in ipairs { " ff", " fF", " fg", " fw", " fW", " fc", " fa", ":FFFFind<CR>" } do
+  feed "gb"
+  picker = assert(Snacks.picker.get()[1], "gb did not open Snacks")
+  assert(vim.wait(2000, function() return picker.list.win:valid() end, 10))
+  local old_wins = snacks_windows(picker)
+  feed(keys)
+  assert(fff.state.active, keys .. " did not open FFF")
+  assert(
+    vim.wait(1000, function() return picker.closed and closed(old_wins) end, 10),
+    keys .. " left Snacks covering FFF"
+  )
+  assert(vim.api.nvim_get_current_win() == fff.state.input_win, "FFF prompt lost focus")
+  vim.cmd.stopinsert()
+  feed "ineedle<C-\\><C-n>"
+  assert(
+    vim.wait(1000, function() return fff.state.query:find("needle", 1, true) ~= nil end, 10),
+    "FFF prompt did not accept input after switching from Snacks"
+  )
+  local fff_wins = { fff.state.input_win, fff.state.list_win, fff.state.preview_win, fff.state.file_info_win }
+  feed "gb"
+  picker = assert(Snacks.picker.get()[1], "gb did not replace FFF")
+  assert(
+    vim.wait(1000, function() return not fff.state.active and closed(fff_wins) and picker:is_focused() end, 10),
+    "Snacks did not replace FFF and take focus"
+  )
+  feed "<Esc>"
+  assert(picker.closed and vim.api.nvim_get_current_buf() == beta, "Cancelling did not restore the edited buffer")
+  assert(vim.bo[beta].modified, "Switching pickers discarded unsaved changes")
+end
+print "PASS: buffer management, unsaved-change protection, and last-opened picker priority for FFF files/grep/config and Snacks"
