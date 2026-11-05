@@ -40,4 +40,6 @@ return {
   { import = "astrocommunity.color.nvim-highlight-colors" },
   -- utility
   { import = "astrocommunity.utility.noice-nvim" },
+  -- motion
+  { import = "astrocommunity.scrolling.mini-animate" },
 }

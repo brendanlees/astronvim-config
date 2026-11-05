@@ -8,6 +8,7 @@ vim.opt.rtp:append(vim.env.NVIM_TEST_SITE)
 for _, name in ipairs {
   "stay-centered.nvim",
   "mini.surround",
+  "mini.animate",
   "nvim-treesitter-context",
   "noice.nvim",
   "nui.nvim",
@@ -59,6 +60,19 @@ feed " Z"
 assert(stay.cfg.enabled, "Stay Centered toggle did not enable centering")
 feed " Z"
 assert(not stay.cfg.enabled, "Stay Centered toggle did not disable centering")
+
+local animate = require "mini.animate"
+local animation = spec("mini-animate", "echasnovski/mini.animate")
+local community = dofile(
+  vim.env.NVIM_TEST_PLUGINS .. "/astrocommunity/lua/astrocommunity/scrolling/mini-animate/init.lua"
+)
+animate.setup(vim.tbl_deep_extend("force", community.opts(), animation.opts))
+assert(animate.config.scroll.enable, "Mini Animate scrolling must be enabled")
+for _, name in ipairs { "cursor", "resize", "open", "close" } do
+  assert(not animate.config[name].enable, "Mini Animate must only animate scrolling: " .. name)
+end
+-- Keep unrelated picker and editing checks independent of animation timing.
+vim.g.minianimate_disable = true
 
 require("mini.surround").setup(spec("mini-surround", "nvim-mini/mini.surround").opts)
 vim.api.nvim_buf_set_lines(0, 0, -1, false, { "word" })
