@@ -24,6 +24,8 @@ return {
   end,
   opts = {
     lazy_sync = true,
+    -- The default info level logs every file-watcher event; one session reached 2.4 GB.
+    logging = { log_level = "warn" },
     layout = {
       height = 0.4,
       width = 1,
