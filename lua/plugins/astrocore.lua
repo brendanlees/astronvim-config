@@ -60,11 +60,22 @@ return {
         function() require("user.file_link").copy() end,
         desc = "Copy current file as a Markdown link",
       },
+      CopyPiReference = {
+        function(opts) require("user.file_link").copy_pi_ref(opts) end,
+        range = true,
+        desc = "Copy current file or lines as a pi @ reference",
+      },
     },
     mappings = {
       n = {
         ["<C-Q>"] = { "<Cmd>confirm q<CR>", desc = "Quit window (confirm unsaved changes)" },
         ["<D-C-M-c>"] = { "<Cmd>CopyMarkdownLink<CR>", desc = "Copy current file as a Markdown link" },
+        ["<Leader>a"] = { desc = "AI" },
+        ["<Leader>ar"] = { "<Cmd>CopyPiReference<CR>", desc = "Copy file as pi @ reference" },
+      },
+      x = {
+        ["<Leader>a"] = { desc = "AI" },
+        ["<Leader>ar"] = { ":CopyPiReference<CR>", desc = "Copy lines as pi @ reference" },
       },
     },
   },
